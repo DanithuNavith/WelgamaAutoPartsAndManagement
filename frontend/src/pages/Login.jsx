@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, ShieldCheck, Wrench, Building2, Eye, EyeOff, ArrowLeft, Settings, Loader2 } from 'lucide-react';
+import BrandLogo from '../components/BrandLogo';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -131,19 +132,8 @@ const Login = () => {
         </button>
 
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-          <div style={{
-            width: '42px', height: '42px', borderRadius: '12px',
-            background: `linear-gradient(135deg, ${activeRoleData.color}, ${activeRoleData.color}99)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: `0 4px 15px ${activeRoleData.color}30`,
-            transition: 'all 0.4s ease'
-          }}>
-            <Settings size={22} color="#fff" />
-          </div>
-          <div>
-            <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>Welgama Auto</span>
-          </div>
+        <div style={{ marginBottom: '2rem' }}>
+          <BrandLogo width={125} style={{ height: 'auto' }} />
         </div>
 
         {/* Card */}

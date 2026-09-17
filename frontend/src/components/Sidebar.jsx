@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Building2, ClipboardList, LayoutDashboard, Moon, Package, ShoppingCart, Sun, Wrench, Users } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 const Sidebar = () => {
   const [isDark, setIsDark] = useState(() => document.body.classList.contains('theme-dark'));
@@ -41,8 +42,8 @@ const Sidebar = () => {
       left: 0,
       top: 0
     }}>
-      <h1 className="mb-6" style={{ fontSize: '1.25rem', color: 'var(--primary)', textAlign: 'center' }}>
-        Welgama Auto
+      <h1 className="mb-6" style={{ textAlign: 'center' }}>
+        <BrandLogo width={125} style={{ height: 'auto', maxWidth: '100%' }} />
       </h1>
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {navItems.map((item) => (

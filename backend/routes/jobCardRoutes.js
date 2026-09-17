@@ -73,8 +73,9 @@ router.patch('/:id/progress', requireRole('Technician'), async (req, res) => {
     if (req.body.technicianHours !== undefined) job.technicianHours = Number(req.body.technicianHours);
     if (req.body.technicianRate !== undefined) job.technicianRate = Number(req.body.technicianRate);
     if (req.body.partsUsed !== undefined) {
-      const previous = new Map((job.partsUsed || []).map(item => [String(item.product), Number(item.quantity || 0)]));
-      const next = new Map((req.body.partsUsed || []).map(item => [String(item.product), Number(item.quantity || 0)]));
+      const getProductId = item => item.product?._id || item.product;
+      const previous = new Map((job.partsUsed || []).map(item => [String(getProductId(item)), Number(item.quantity || 0)]));
+      const next = new Map((req.body.partsUsed || []).map(item => [String(getProductId(item)), Number(item.quantity || 0)]));
       const productIds = new Set([...previous.keys(), ...next.keys()]);
       for (const productId of productIds) {
         const delta = (next.get(productId) || 0) - (previous.get(productId) || 0);

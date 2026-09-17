@@ -44,7 +44,7 @@
   --bg-card: #ffffff;
   --text-main: #172033;
   --text-muted: #64748b;
-  --primary: #3b82f6;
+  --primary: #417ee0;
   --primary-hover: #2563eb;
   --danger: #ef4444;
   --success: #10b981;
@@ -693,7 +693,11 @@ body.theme-dark .product-results { background: #162033 !important; }
 .login-page .login-options button { color: #2563eb !important; }
 .customer-portal .primaryButton,
 .home-page button[style*="background"],
+.home-page a[style*="background"],
 .login-page button[type="submit"] { color: #ffffff !important; }
+.home-page a.explore-services-button[style*="background"] { color: #000000 !important; border: 2px solid #000000 !important; }
+body.theme-dark .home-page .explore-services-button,
+body.theme-dark .home-page .explore-services-button svg { color: #000000 !important; }
 .customer-portal header,
 .technician-header,
 .supplier-portal-header { background: #ffffff !important; border-color: #dce3ed !important; color: #172033 !important; box-shadow: 0 1px 8px rgba(30,55,90,.06); }
@@ -750,13 +754,13 @@ body.theme-dark .product-results { background: #162033 !important; }
 .technician-portal td,
 .supplier-portal td { color: #172033 !important; border-color: #e7ecf2 !important; }
 .supplier-portal .portal-table-wrap th { background: #eef2f7 !important; }
-.login-page > div[style] { color: #172033 !important; }
+.login-page > div[style] { color: #090c14 !important; }
 .login-page > div[style] > div[style*="rgba(15, 23, 42"] { background: #ffffff !important; border-color: #dce3ed !important; box-shadow: 0 18px 45px rgba(30,55,90,.12) !important; }
 .login-page > div:nth-of-type(3) > div { background: #ffffff !important; border-color: #dce3ed !important; box-shadow: 0 18px 45px rgba(30,55,90,.12) !important; }
 .login-page label,
-.login-page p { color: #475569 !important; }
-.login-page input::placeholder { color: #94a3b8 !important; }
-.login-page button:not([type="submit"]) { color: #2563eb; }
+.login-page p { color: #11151b !important; }
+.login-page input::placeholder { color: #313d4d !important; }
+.login-page button:not([type="submit"]) { color: #06308b; }
 .cost-detail div,
 .pos-product,
 .purchase-item-row { background: #f8fafc !important; color: var(--text-main) !important; }

@@ -13,6 +13,7 @@ import TechnicianDashboard from './pages/TechnicianDashboard';
 import Suppliers from './pages/Suppliers';
 import SupplierDashboard from './pages/SupplierDashboard';
 import PurchaseOrders from './pages/PurchaseOrders';
+import BrandLogo from './components/BrandLogo';
 import { Moon, Sun } from 'lucide-react';
 
 const ThemeSwitch = () => {
@@ -78,7 +79,7 @@ const AdminLayout = () => {
       <Sidebar />
       <main className="admin-main" style={{ flex: 1, padding: '2rem', marginLeft: '250px' }}>
         <header className="admin-topbar mb-6 flex justify-between align-center">
-          <div><p className="topbar-kicker">OPERATIONS CENTER</p><h2>Welgama Auto Parts</h2></div>
+          <div><BrandLogo width={120} style={{ height: 'auto' }} /><p className="topbar-kicker">OPERATIONS CENTER</p></div>
           <div className="topbar-actions">
             <ThemeSwitch />
             <div className="topbar-user"><span className="user-avatar">{user?.name?.charAt(0) || 'W'}</span><span>{user?.name || 'Owner'}</span></div>

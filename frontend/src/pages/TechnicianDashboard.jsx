@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, ClipboardList, Clock, LogOut, Package, User, Wrench } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BrandLogo from '../components/BrandLogo';
 
 const API = 'http://localhost:5000/api';
 const auth = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
@@ -31,7 +32,7 @@ const TechnicianDashboard = () => {
 
   const openJob = job => {
     setActiveJob(job);
-    setForm({ diagnosis: job.diagnosis || '', repairNotes: job.repairNotes || '', technicianHours: job.technicianHours || 0, technicianRate: job.technicianRate || job.technician?.hourlyRate || 1000, partsUsed: job.partsUsed || [] });
+    setForm({ diagnosis: job.diagnosis || '', repairNotes: job.repairNotes || '', technicianHours: job.technicianHours || 0, technicianRate: job.technicianRate || job.technician?.hourlyRate || 1000, partsUsed: (job.partsUsed || []).map(item => ({ ...item, product: item.product?._id || item.product })) });
   };
 
   const addPart = event => {
@@ -52,7 +53,7 @@ const TechnicianDashboard = () => {
   const count = status => jobs.filter(job => job.status === status).length;
 
   return <div className="technician-portal">
-    <header className="technician-header"><div className="tech-brand"><span><Wrench size={18} /></span><strong>Welgama Auto</strong><small>Technician workspace</small></div><div className="tech-user"><User size={16} /> {user?.name || 'Technician'}<button onClick={logout}><LogOut size={15} /> Sign out</button></div></header>
+    <header className="technician-header"><div className="tech-brand"><BrandLogo width={100} style={{ height: 'auto' }} /><small>Technician workspace</small></div><div className="tech-user"><User size={16} /> {user?.name || 'Technician'}<button onClick={logout}><LogOut size={15} /> Sign out</button></div></header>
     <main className="technician-main">
       <section className="technician-welcome"><div><p className="portal-kicker">MY ASSIGNED WORK</p><h1>Good to see you, {user?.name || 'Technician'}.</h1><p>Review assigned repairs and keep each job card up to date.</p></div><Wrench size={54} /></section>
       <div className="tech-stats"><div><ClipboardList size={19} /><span>Assigned</span><strong>{count('ASSIGNED')}</strong></div><div><Clock size={19} /><span>In progress</span><strong>{count('IN_PROGRESS')}</strong></div><div><CheckCircle size={19} /><span>Completed</span><strong>{count('COMPLETED')}</strong></div></div>

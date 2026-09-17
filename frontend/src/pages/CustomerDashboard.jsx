@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Calendar, Car, ChevronLeft, ChevronRight, Filter, LogOut, Package, Search, User, Wrench, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BrandLogo from '../components/BrandLogo';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 const emptyRepair = { vehicleModel: '', licensePlate: '', issueDescription: '', appointmentDate: '', technician: '' };
@@ -45,12 +46,18 @@ const CustomerDashboard = () => {
     setRepair(emptyRepair); setShowRepair(false); setMessage('Repair appointment requested successfully.');
   };
 
-  const logout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); navigate('/login'); };
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="customer-portal" style={styles.page}>
       <header style={styles.header}>
-        <div style={styles.brand}><div style={styles.brandIcon}><Car size={19} /></div><strong>Welgama Auto</strong><span style={styles.portal}>Customer portal</span></div>
+        <div style={styles.brand}><BrandLogo width={100} style={{ height: 'auto' }} /><span style={styles.portal}>Customer portal</span></div>
         <div style={styles.user}><User size={17} /> {user?.name || 'Customer'} <button onClick={logout} style={styles.logout}><LogOut size={15} /> Logout</button></div>
       </header>
       <main style={styles.main}>

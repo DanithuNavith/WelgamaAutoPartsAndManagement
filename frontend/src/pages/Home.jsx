@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Wrench, ShieldCheck, Clock, Star, ChevronRight, Phone, MapPin, Mail, Zap, Car, Settings } from 'lucide-react';
+import BrandLogo from '../components/BrandLogo';
 
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -37,27 +38,14 @@ const Home = () => {
       {/* Navigation */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        padding: '1rem 2rem',
+        padding: '0.5rem 2rem',
         background: scrollY > 50 ? 'rgba(10, 14, 26, 0.9)' : 'transparent',
         backdropFilter: scrollY > 50 ? 'blur(20px)' : 'none',
         borderBottom: scrollY > 50 ? '1px solid rgba(255,255,255,0.06)' : 'none',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '42px', height: '42px', borderRadius: '12px',
-            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 15px rgba(59,130,246,0.3)'
-          }}>
-            <Settings size={22} color="#fff" />
-          </div>
-          <div>
-            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.02em' }}>Welgama</span>
-            <span style={{ fontSize: '1.25rem', fontWeight: 300, color: '#94a3b8', marginLeft: '0.35rem' }}>Auto</span>
-          </div>
-        </div>
+        <BrandLogo width={150} />
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <Link to="/login" style={{
             padding: '0.6rem 1.5rem', borderRadius: '10px', textDecoration: 'none',
@@ -142,7 +130,7 @@ const Home = () => {
             >
               Login to Dashboard <ChevronRight size={18} />
             </Link>
-            <a href="#services" style={{
+            <a href="#services" className="explore-services-button" style={{
               padding: '0.9rem 2.5rem', borderRadius: '14px', textDecoration: 'none',
               color: '#cbd5e1', fontSize: '1rem', fontWeight: 500,
               border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)',
@@ -357,8 +345,7 @@ const Home = () => {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <Settings size={20} color="#3b82f6" />
-              <span style={{ fontWeight: 700, color: '#f8fafc' }}>Welgama Auto</span>
+              <BrandLogo width={110} style={{ height: 'auto' }} />
             </div>
             <p style={{ color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7 }}>
               Your trusted partner for quality auto parts and expert vehicle repairs since 1998.

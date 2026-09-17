@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Car, CheckCircle, ClipboardList, LogOut, Package, Truck, UserRound, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BrandLogo from '../components/BrandLogo';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 const statusClass = value => value.toLowerCase().replaceAll(' ', '-');
@@ -48,7 +49,7 @@ const SupplierDashboard = () => {
   const totalItems = orders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
 
   return <div className="supplier-portal">
-    <header className="supplier-portal-header"><div className="portal-brand"><span><Car size={19} /></span><strong>Welgama Auto</strong><small>Supplier portal</small></div><div className="portal-user"><UserRound size={17} /> {user?.name || 'Supplier'}<button className="portal-logout" onClick={logout}><LogOut size={15} /> Sign out</button></div></header>
+    <header className="supplier-portal-header"><div className="portal-brand"><BrandLogo width={100} style={{ height: 'auto' }} /><small>Supplier portal</small></div><div className="portal-user"><UserRound size={17} /> {user?.name || 'Supplier'}<button className="portal-logout" onClick={logout}><LogOut size={15} /> Sign out</button></div></header>
     <main className="supplier-portal-main">
       <section className="supplier-welcome"><div><p className="portal-kicker">SUPPLIER WORKSPACE</p><h1>Welcome, {user?.name || 'Supplier'}.</h1><p>Track the orders and deliveries connected to your Welgama Auto Parts account.</p></div><Truck size={58} /></section>
       {error && <div className="portal-error" role="alert">{error}</div>}
