@@ -1,0 +1,15 @@
+{
+  "shipped_model": "Logistic regression",
+  "test_pr_auc_model": 0.8366193725027034,
+  "test_pr_auc_rule": 0.7805255516715055,
+  "test_roc_auc_model": 0.9100866459334778,
+  "test_precision_at_cutoff": 0.5399339933993399,
+  "test_recall_at_cutoff": 0.947856315179606,
+  "test_precision_rule_same_recall_target": 0.5046963055729493,
+  "test_recall_rule_same_recall_target": 0.9339513325608343,
+  "test_brier": 0.11920926930655434,
+  "demand_mae_model": 1.5789519284642521,
+  "demand_mae_naive": 1.8663970588235295,
+  "cutoff": 0.2768595041322314,
+  "high_cutoff": 0.6
+}

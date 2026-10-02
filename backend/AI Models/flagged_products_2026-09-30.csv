@@ -1,0 +1,41 @@
+name,category,stock,threshold,p_low_7d,days_to_threshold,pred_daily_demand,flag,suggested_order_qty,product_id
+Toyota Aqua Front Bumper,Body Parts,15,15,1.0,0.0,0.10102384264018706,CRITICAL - already low,2,6aaace85048b2ad7949a851c
+Toyota Aqua Bonnet,Body Parts,5,3,0.3333333333333333,25.7,0.07783944085457,WATCH - likely low within 7 days,0,6aad3e4de5e7e5a46bad3bfe
+Suzuki Wagon R Side Mirror Cover,Body Parts,9,5,0.2768595041322314,14.0,0.2847376172505714,WATCH - likely low within 7 days,0,6aaad242048b2ad7949a8522
+Suzuki Wagon R Tail Light,Lighting,9,5,0.2768595041322314,17.5,0.22825231402094057,WATCH - likely low within 7 days,0,6aaad420048b2ad7949a8526
+Toyota Aqua Front Grille,Body Parts,6,5,0.14814814814814814,15.2,0.06588025729041438,OK,0,6aac0ead19e7e1bfb50c0d86
+Toyota Aqua Headlight,Lighting,10,5,0.06976744186046512,21.7,0.23000513053044871,OK,0,6aaacf08048b2ad7949a851d
+Suzuki Wagon R Rear Bumper,Body Parts,8,5,0.06976744186046512,19.5,0.15365624336162167,OK,0,6aaad37a048b2ad7949a8524
+Toyota Aqua Radiator Hose,Cooling System,10,5,0.05263157894736842,15.7,0.3187371297788161,OK,0,6abcc7df88dd9f4f1d389ae3
+Toyota Aqua Tail Light,Lighting,10,5,0.047619047619047616,21.9,0.22869090728890146,OK,0,6aaacf63048b2ad7949a851e
+Suzuki Wagon R Front Bumper,Body Parts,9,5,0.022388059701492536,31.1,0.12852563548336426,OK,0,6aaad2e7048b2ad7949a8523
+Suzuki Wagon R Badge/Emblem,Exterior Accessories,11,5,0.022388059701492536,29.8,0.20134067827916696,OK,0,6aaad519048b2ad7949a8529
+Toyota Aqua Rear Door,Body Parts,9,5,0.009615384615384616,32.3,0.12374664689106256,OK,0,6aaad18b048b2ad7949a8520
+Suzuki Wagon R Side Mirror,Body Parts,11,5,0.009615384615384616,31.6,0.18995795252181344,OK,0,6aaad1f3048b2ad7949a8521
+Suzuki Wagon R Headlight,Lighting,12,5,0.009615384615384616,31.1,0.22481757110681624,OK,0,6aaad3be048b2ad7949a8525
+Suzuki Wagon R Spoiler,Body Accessories,8,5,0.009615384615384616,43.1,0.06959672350063248,OK,0,6aaad4bb048b2ad7949a8528
+Toyota Aqua Headlight Lens,Lighting,11,5,0.007462686567164179,18.2,0.3302619992714595,OK,0,6aaacfaf048b2ad7949a851f
+Suzuki Wagon R Door Panel,Door Parts,10,5,0.007462686567164179,30.9,0.1619343256423034,OK,0,6aaad578048b2ad7949a852a
+Toyota Vitz Headlight,Lighting,15,6,0.007462686567164179,38.1,0.23641506027186845,OK,0,6aba9ae7c7a1f2c3bec8ec1f
+Suzuki Wagon R Rim Cap,Wheel Accessories,16,5,0.0041841004184100415,26.3,0.4186841020943577,OK,0,6aaad46a048b2ad7949a8527
+Suzuki Wagon R Door,Body Parts,11,5,0.0041841004184100415,68.1,0.08804806441208547,OK,0,6aaad5c3048b2ad7949a852b
+Toyota Aqua Oil Filter,Engine Parts,20,5,0.0041841004184100415,16.5,0.9092159329101485,OK,0,6abcc49d88dd9f4f1d389ada
+Toyota Aqua Brake Pad,Brake System,20,5,0.0041841004184100415,17.0,0.8847711229930283,OK,0,6abcc5e988dd9f4f1d389ade
+Toyota Aqua Brake Disc,Brake System,15,5,0.0041841004184100415,24.2,0.4139170498355491,OK,0,6abcc63688dd9f4f1d389adf
+Honda Fit Fuel Filter,Fuel System,15,5,0.0041841004184100415,33.7,0.29635732670877996,OK,0,6abcc8d088dd9f4f1d389ae6
+Nissan March Headlight,Lighting,15,5,0.0,114.5,0.08733623315270411,OK,0,6abc03127514c970dec8cf2d
+Toyota Aqua Air Filter,Engine Parts,20,5,0.0,22.4,0.6687047167864641,OK,0,6abcc4e088dd9f4f1d389adb
+Toyota Aqua Cabin Filter,Engine Parts,25,5,0.0,35.7,0.5597984626129243,OK,0,6abcc53488dd9f4f1d389adc
+Toyota Aqua Spark Plug,Engine Parts,40,10,0.0,21.6,1.3898507907668534,OK,0,6abcc59588dd9f4f1d389add
+Toyota Aqua Wheel Bearing,Suspension,20,5,0.0,32.7,0.45859084714229414,OK,0,6abcc68988dd9f4f1d389ae0
+Toyota Aqua Stabilizer Link,Suspension,20,5,0.0,39.3,0.38125215739555174,OK,0,6abcc6e688dd9f4f1d389ae1
+Toyota Aqua Wiper Blade,Accessories,30,5,0.0,31.2,0.8003699413440611,OK,0,6abcc73088dd9f4f1d389ae2
+Honda Fit Oil Filter,Engine Parts,30,5,0.0,24.7,1.011390161455272,OK,0,6abcc84488dd9f4f1d389ae4
+Honda Fit Air Filter,Engine Parts,20,5,0.0,27.1,0.5535202183712099,OK,0,6abcc88c88dd9f4f1d389ae5
+Honda Fit Brake Pad,Brake System,20,5,0.0,21.7,0.6917165473436114,OK,0,6abccd2188dd9f4f1d389ae7
+Honda Fit Brake Disc,Brake System,20,5,0.0,41.8,0.3592335910893576,OK,0,6abccdc288dd9f4f1d389ae8
+Honda Fit Wheel Bearing,Suspension,20,5,0.0,51.8,0.28981376973372347,OK,0,6abcce1288dd9f4f1d389ae9
+Honda Fit Stabilizer Link,Suspension,15,5,0.0,36.5,0.2741815657275655,OK,0,6abcce3e88dd9f4f1d389aea
+Honda Fit Wiper Blade,Accessories,30,5,0.0,32.2,0.776044275347276,OK,0,6abccead88dd9f4f1d389aeb
+Daihatsu Move Wheel Cylinder,Brake System,20,5,0.0,113.2,0.132501041991069,OK,0,6abccf2888dd9f4f1d389aec
+Hyundai Eon Oil Filter,Engine Parts,30,5,0.0,46.0,0.543291099278109,OK,0,6abccf6d88dd9f4f1d389aed

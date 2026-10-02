@@ -12,6 +12,9 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role, phone } = req.body;
+    if (role === 'Supplier') {
+      return res.status(403).json({ message: 'Supplier accounts are created by the owner. Use the email and password provided by your supplier.' });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -34,19 +37,6 @@ router.post('/register', async (req, res) => {
       const technician = new Technician({ name, specialty: 'General' });
       await technician.save();
       user.technicianProfile = technician._id;
-    }
-
-    if (role === 'Supplier') {
-      const supplier = await Supplier.create({
-        name,
-        contactPerson: name,
-        phone: phone || 'Not provided',
-        email,
-        address: 'Update your address'
-      });
-      user.supplierProfile = supplier._id;
-      supplier.user = user._id;
-      await supplier.save();
     }
 
     await user.save();
@@ -74,22 +64,64 @@ router.post('/login', async (req, res) => {
     const { email, password, role } = req.body;
     const identifier = (email || '').trim();
 
-    // Find user by email and role
-    const user = await User.findOne({
-      role,
-      $or: [{ email: identifier.toLowerCase() }, { name: identifier }]
-    });
+    let user;
+    if (role === 'Supplier') {
+      const normalizedEmail = identifier.toLowerCase();
+      user = await User.findOne({ email: normalizedEmail, role: 'Supplier' });
+      let supplier = await Supplier.findOne({ email: normalizedEmail }).select('+password');
+
+      if (!supplier && user?.supplierProfile) {
+        supplier = await Supplier.findById(user.supplierProfile).select('+password');
+      }
+
+      if (user) {
+        if (!await user.comparePassword(password)) {
+          return res.status(401).json({ message: 'Invalid email, password, or role.' });
+        }
+        if (supplier) {
+          if (user.supplierProfile && user.supplierProfile.toString() !== supplier._id.toString()) {
+            return res.status(401).json({ message: 'Invalid email, password, or role.' });
+          }
+          const supplierLinkedToAnotherUser = supplier.user && supplier.user.toString() !== user._id.toString();
+          if (supplierLinkedToAnotherUser) {
+            return res.status(401).json({ message: 'Invalid email, password, or role.' });
+          }
+          if (!user.supplierProfile || !supplier.user) {
+            user.supplierProfile = supplier._id;
+            supplier.user = user._id;
+            await Promise.all([user.save(), supplier.save()]);
+          }
+        }
+      } else if (supplier && await supplier.comparePassword(password)) {
+        user = await User.create({
+          name: supplier.name || supplier.contactPerson,
+          email: supplier.email,
+          password,
+          role: 'Supplier',
+          phone: supplier.phone,
+          supplierProfile: supplier._id
+        });
+        supplier.user = user._id;
+        await supplier.save();
+      } else {
+        return res.status(401).json({ message: 'Invalid email, password, or role.' });
+      }
+    } else {
+      user = await User.findOne({
+        role,
+        $or: [{ email: identifier.toLowerCase() }, { name: identifier }]
+      });
+    }
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid email, password, or role.' });
     }
 
-    // Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email, password, or role.' });
     }
 
-    // Generate token
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email, role: user.role, technicianProfile: user.technicianProfile, supplierProfile: user.supplierProfile },
       JWT_SECRET,

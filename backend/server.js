@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const envPath = [path.join(__dirname, '.env'), path.join(__dirname, 'backend.env')]
+  .find(filePath => fs.existsSync(filePath));
+if (envPath) require('dotenv').config({ path: envPath });
 
 const productRoutes = require('./routes/productRoutes');
 const saleRoutes = require('./routes/saleRoutes');
@@ -12,6 +16,7 @@ const customerRoutes = require('./routes/customerRoutes');
 const supplierRoutes = require('./routes/supplierRoutes');
 const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
 const authRoutes = require('./routes/authRoutes');
+const stockFlagRoutes = require('./routes/stockFlagRoutes');
 const User = require('./models/User');
 const Technician = require('./models/Technician');
 
@@ -29,6 +34,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchase-orders', purchaseOrderRoutes);
+app.use('/api/stock-flags', stockFlagRoutes);
 
 const PORT = process.env.PORT || 5000;
 

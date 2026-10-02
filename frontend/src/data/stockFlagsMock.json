@@ -1,0 +1,50 @@
+[
+  {
+    "product_id": "6aaace85048b2ad7949a851c",
+    "name": "Toyota Aqua Front Bumper",
+    "category": "Body Parts",
+    "stock": 15,
+    "threshold": 15,
+    "p_low_7d": 1,
+    "days_to_threshold": 0,
+    "pred_daily_demand": 0.10102384264018706,
+    "flag": "CRITICAL - already low",
+    "suggested_order_qty": 2
+  },
+  {
+    "product_id": "6aad3e4de5e7e5a46bad3bfe",
+    "name": "Toyota Aqua Bonnet",
+    "category": "Body Parts",
+    "stock": 5,
+    "threshold": 3,
+    "p_low_7d": 0.3333333333333333,
+    "days_to_threshold": 25.7,
+    "pred_daily_demand": 0.07783944085457,
+    "flag": "WATCH - likely low within 7 days",
+    "suggested_order_qty": 0
+  },
+  {
+    "product_id": "6aaad242048b2ad7949a8522",
+    "name": "Suzuki Wagon R Side Mirror Cover",
+    "category": "Body Parts",
+    "stock": 9,
+    "threshold": 5,
+    "p_low_7d": 0.2768595041322314,
+    "days_to_threshold": 14,
+    "pred_daily_demand": 0.2847376172505714,
+    "flag": "WATCH - likely low within 7 days",
+    "suggested_order_qty": 0
+  },
+  {
+    "product_id": "6aaad420048b2ad7949a8526",
+    "name": "Suzuki Wagon R Tail Light",
+    "category": "Lighting",
+    "stock": 9,
+    "threshold": 5,
+    "p_low_7d": 0.2768595041322314,
+    "days_to_threshold": 17.5,
+    "pred_daily_demand": 0.22825231402094057,
+    "flag": "WATCH - likely low within 7 days",
+    "suggested_order_qty": 0
+  }
+]

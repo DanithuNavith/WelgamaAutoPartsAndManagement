@@ -1,6 +1,7 @@
 const express = require('express');
 const Customer = require('../models/Customer');
 const { authMiddleware, requireRole } = require('../middleware/auth');
+const { validateCustomerInput } = require('../services/repairInputValidation');
 const router = express.Router();
 router.use(authMiddleware, requireRole('Owner'));
 
@@ -15,6 +16,8 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    const validationError = validateCustomerInput(req.body);
+    if (validationError) return res.status(400).json({ error: validationError });
     const customer = new Customer(req.body);
     await customer.save();
     res.status(201).json(customer);
@@ -25,6 +28,8 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
+    const validationError = validateCustomerInput(req.body);
+    if (validationError) return res.status(400).json({ error: validationError });
     const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true

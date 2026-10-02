@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { User, ShieldCheck, Wrench, Building2, Eye, EyeOff, ArrowLeft, Settings, Loader2 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
@@ -8,16 +8,22 @@ const API_BASE_URL = 'http://localhost:5000/api';
 const roles = [
   { key: 'Owner', label: 'Owner', icon: ShieldCheck, color: '#8b5cf6', desc: 'Full system access & management' },
   { key: 'Customer', label: 'Customer', icon: User, color: '#3b82f6', desc: 'Track repairs & browse parts' },
-  { key: 'Technician', label: 'Technician', icon: Wrench, color: '#10b981', desc: 'Manage assigned jobs & repairs' }
-  ,{ key: 'Supplier', label: 'Supplier', icon: Building2, color: '#f59e0b', desc: 'View your orders & deliveries' }
+  { key: 'Technician', label: 'Technician', icon: Wrench, color: '#10b981', desc: 'Manage assigned jobs & repairs' },
+  { key: 'Supplier', label: 'Supplier', icon: Building2, color: '#f59e0b', desc: 'View your orders & deliveries' }
 ];
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
+  const requestedRole = searchParams.get('role');
 
-  const [isRegister, setIsRegister] = useState(searchParams.get('tab') === 'register');
-  const [selectedRole, setSelectedRole] = useState(searchParams.get('role') === 'Supplier' ? 'Supplier' : 'Customer');
+  const [isRegister, setIsRegister] = useState(searchParams.get('tab') === 'register' && location.pathname !== '/supplier/login');
+  const [selectedRole, setSelectedRole] = useState(
+    roles.some(role => role.key === requestedRole)
+      ? requestedRole
+      : location.pathname === '/supplier/login' ? 'Supplier' : 'Customer'
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -74,6 +80,13 @@ const Login = () => {
       if (!res.ok) {
         throw new Error(data.message || 'Something went wrong');
       }
+      const returnTo = searchParams.get('returnTo');
+      const safeOwnerReturnTo = returnTo?.startsWith('/admin/') && !returnTo.includes('..')
+        ? returnTo
+        : null;
+      if (safeOwnerReturnTo && data.user.role !== 'Owner') {
+        throw new Error('This management page requires an Owner account. Select Owner and sign in again.');
+      }
 
       // Store token and user info
       localStorage.removeItem('token');
@@ -87,7 +100,13 @@ const Login = () => {
       setSuccess(data.message);
 
       // Redirect after short delay
-      setTimeout(() => redirectByRole(data.user.role), 600);
+      setTimeout(() => {
+        if (data.user.role === 'Owner' && safeOwnerReturnTo) {
+          navigate(safeOwnerReturnTo, { replace: true });
+          return;
+        }
+        redirectByRole(data.user.role);
+      }, 600);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -154,8 +173,8 @@ const Login = () => {
             <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>
               Login as
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
-              {roles.map(role => (
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isRegister ? 3 : 4}, 1fr)`, gap: '0.5rem' }}>
+              {roles.filter(role => !isRegister || role.key !== 'Supplier').map(role => (
                 <button key={role.key} onClick={() => setSelectedRole(role.key)} style={{
                   padding: '0.75rem 0.5rem', borderRadius: '12px', cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem',
@@ -217,8 +236,8 @@ const Login = () => {
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.35rem', display: 'block' }}>Email</label>
               <input
-                type={isRegister ? 'email' : 'text'} name="email" value={form.email} onChange={handleChange}
-                placeholder={selectedRole === 'Supplier' && !isRegister ? 'Enter email or supplier name' : 'Enter your email'} required
+                type={isRegister || selectedRole === 'Supplier' ? 'email' : 'text'} name="email" value={form.email} onChange={handleChange}
+                placeholder={selectedRole === 'Supplier' && !isRegister ? 'Enter your registered supplier email' : 'Enter your email'} required
                 style={{
                   width: '100%', padding: '0.75rem 1rem', borderRadius: '10px',
                   background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)',
@@ -296,16 +315,16 @@ const Login = () => {
           {!isRegister && <div className="login-options"><label><input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} /> Remember me</label><button type="button" onClick={() => setSuccess('If an account exists for this email, password reset instructions will be sent.')}>Forgot password?</button></div>}
 
           {/* Toggle Login/Register */}
-          <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+          {selectedRole === 'Supplier' && !isRegister ? <p className="supplier-login-help">Supplier accounts are created by the owner. Sign in with the registered email address and password the owner provided.</p> : <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.85rem' }}>
             {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); }} style={{
+            <button onClick={() => { const nextIsRegister = !isRegister; setIsRegister(nextIsRegister); if (nextIsRegister && selectedRole === 'Supplier') setSelectedRole('Customer'); setError(''); setSuccess(''); }} style={{
               background: 'none', border: 'none', color: activeRoleData.color,
               cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
               transition: 'opacity 0.2s'
             }}>
               {isRegister ? 'Sign In' : 'Register'}
             </button>
-          </p>
+          </p>}
         </div>
       </div>
 

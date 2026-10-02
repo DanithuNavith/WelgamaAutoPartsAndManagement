@@ -10,9 +10,13 @@ router.use(authMiddleware, requireRole('Owner'));
 router.get('/', async (req, res) => {
   try {
     const totalProducts = await Product.countDocuments();
-    // Use aggregate to find products where quantity <= lowStockThreshold
-    const lowStockItems = await Product.find({ $expr: { $lte: ['$quantity', '$lowStockThreshold'] } });
-    const lowStockCount = lowStockItems.length;
+    const lowStockFilter = {
+      $expr: { $lte: ['$quantity', { $ifNull: ['$lowStockThreshold', 5] }] }
+    };
+    const [lowStockCount, lowStockItems] = await Promise.all([
+      Product.countDocuments(lowStockFilter),
+      Product.find(lowStockFilter).select('name category quantity lowStockThreshold').sort({ quantity: 1, name: 1 }).limit(10)
+    ]);
     
     const sales = await Sale.find();
     const totalRevenue = sales.reduce((acc, sale) => acc + sale.total, 0);
@@ -22,6 +26,7 @@ router.get('/', async (req, res) => {
     res.json({
       totalProducts,
       lowStockCount,
+      lowStockItems,
       totalRevenue,
       activeRepairs
     });

@@ -4,7 +4,32 @@ import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
 
 const API_BASE_URL = 'http://localhost:5000/api';
-const emptyRepair = { vehicleModel: '', licensePlate: '', issueDescription: '', appointmentDate: '', technician: '' };
+const emptyRepair = { vehicleModel: '', licensePlate: '', issueDescription: '', appointmentDate: '', appointmentTime: '', technician: '' };
+const emptyAvailability = { loading: false, holiday: null, availableTimes: [], error: '' };
+
+const getSriLankaToday = () => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Colombo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+};
+
+const formatTimeSlot = time => {
+  const [hour, minute] = time.split(':').map(Number);
+  const formatTime = totalMinutes => {
+    const slotHour = Math.floor(totalMinutes / 60);
+    const slotMinute = totalMinutes % 60;
+    const suffix = slotHour >= 12 ? 'p.m.' : 'a.m.';
+    const displayHour = slotHour % 12 || 12;
+    return `${displayHour}:${String(slotMinute).padStart(2, '0')} ${suffix}`;
+  };
+  const start = hour * 60 + minute;
+  return `${formatTime(start)} – ${formatTime(start + 60)}`;
+};
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
@@ -17,18 +42,129 @@ const CustomerDashboard = () => {
   const [repair, setRepair] = useState(emptyRepair);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [bookingError, setBookingError] = useState('');
+  const [availability, setAvailability] = useState(emptyAvailability);
+  const [today] = useState(getSriLankaToday);
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const validateRepairFields = (draft = repair) => {
+    const nextErrors = {};
+    const vehicleModel = draft.vehicleModel?.trim();
+    if (!vehicleModel) {
+      nextErrors.vehicleModel = 'Vehicle model is required.';
+    } else if (vehicleModel.length < 2) {
+      nextErrors.vehicleModel = 'Vehicle model must be at least 2 characters.';
+    } else if (vehicleModel.length > 80) {
+      nextErrors.vehicleModel = 'Vehicle model cannot exceed 80 characters.';
+    }
+
+    const licensePlate = draft.licensePlate?.trim();
+    if (!licensePlate) {
+      nextErrors.licensePlate = 'License plate is required.';
+    } else if (!/^[A-Z]{2,3}-?[0-9]{3,4}$/i.test(licensePlate)) {
+      nextErrors.licensePlate = 'Please enter a valid license plate like ABC-1234 or AB-1234.';
+    }
+
+    const issueDescription = draft.issueDescription?.trim();
+    if (!issueDescription) {
+      nextErrors.issueDescription = 'Please describe the issue.';
+    } else if (issueDescription.length < 10) {
+      nextErrors.issueDescription = 'Issue description must be at least 10 characters.';
+    } else if (issueDescription.length > 500) {
+      nextErrors.issueDescription = 'Issue description cannot exceed 500 characters.';
+    }
+
+    if (!draft.technician) {
+      nextErrors.technician = 'Please select a technician.';
+    }
+
+    if (!draft.appointmentDate) {
+      nextErrors.appointmentDate = 'Please choose an appointment date.';
+    } else {
+      const selectedDate = new Date(`${draft.appointmentDate}T00:00:00`);
+      const todayDate = new Date(`${today}T00:00:00`);
+      if (selectedDate < todayDate) {
+        nextErrors.appointmentDate = 'Appointment date must be in the future.';
+      }
+    }
+
+    if (!draft.appointmentTime) {
+      nextErrors.appointmentTime = 'Choose an available appointment time.';
+    } else if (!availability.availableTimes.includes(draft.appointmentTime)) {
+      nextErrors.appointmentTime = 'Choose an available appointment time.';
+    }
+
+    return nextErrors;
+  };
+
+  const updateRepairField = (field, value) => {
+    const nextRepair = { ...repair, [field]: value };
+    setRepair(nextRepair);
+    setFieldErrors(currentErrors => {
+      const updatedErrors = { ...currentErrors };
+      delete updatedErrors[field];
+      if (field === 'appointmentDate' || field === 'technician') {
+        delete updatedErrors.appointmentTime;
+      }
+      return updatedErrors;
+    });
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
     if (storedUser) setUser(JSON.parse(storedUser));
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const headers = { Authorization: `Bearer ${token || ''}` };
+    const loadJson = async (url, label) => {
+      const response = await fetch(url, { headers });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || data.message || `Could not load ${label} (HTTP ${response.status}).`);
+      }
+      return data;
+    };
     Promise.all([
-      fetch(`${API_BASE_URL}/products`).then(response => response.json()),
+      loadJson(`${API_BASE_URL}/products`, 'available parts'),
       fetch(`${API_BASE_URL}/technicians`, { headers: { Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` } }).then(response => response.ok ? response.json() : Promise.reject(new Error('Could not load technicians')))
     ]).then(([parts, staff]) => {
+      if (!Array.isArray(parts) || !Array.isArray(staff)) {
+        throw new Error('The server returned an unexpected response while loading parts and technicians.');
+      }
       setProducts(parts.filter(part => part.quantity > 0));
       setTechnicians(staff.filter(technician => ['Technician 1', 'Technician 2'].includes(technician.name)));
-    }).catch(() => setError('Could not load available parts and technicians.'));
+    }).catch(loadError => setError(loadError.message || 'Could not load available parts and technicians.'));
   }, []);
+
+  useEffect(() => {
+    if (!showRepair || !repair.appointmentDate) {
+      setAvailability(emptyAvailability);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const params = new URLSearchParams({ date: repair.appointmentDate });
+    if (repair.technician) params.set('technician', repair.technician);
+    setAvailability({ ...emptyAvailability, loading: true });
+
+    fetch(`${API_BASE_URL}/jobCards/availability?${params}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token') || ''}`
+      },
+      signal: controller.signal
+    }).then(async response => {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || data.message || `Could not check appointment availability (HTTP ${response.status}).`);
+      }
+      setAvailability({ loading: false, holiday: data.holiday, availableTimes: data.availableTimes, error: '' });
+    }).catch(fetchError => {
+      if (fetchError.name !== 'AbortError') {
+        setAvailability({ ...emptyAvailability, error: fetchError.message });
+      }
+    });
+
+    return () => controller.abort();
+  }, [showRepair, repair.appointmentDate, repair.technician]);
 
   const visibleProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -37,13 +173,24 @@ const CustomerDashboard = () => {
   const categories = useMemo(() => ['All Categories', ...new Set(products.map(product => product.category))], [products]);
   const submitRepair = async (event) => {
     event.preventDefault();
+    setBookingError('');
+    const nextErrors = validateRepairFields();
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
     setError('');
     const response = await fetch(`${API_BASE_URL}/jobCards`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` },
-      body: JSON.stringify({ ...repair, customerName: user?.name })
+      body: JSON.stringify({
+        ...repair,
+        appointmentDate: `${repair.appointmentDate}T${repair.appointmentTime}`,
+        customerName: user?.name
+      })
     });
-    if (!response.ok) { setError('Could not book the repair appointment. Please try again.'); return; }
-    setRepair(emptyRepair); setShowRepair(false); setMessage('Repair appointment requested successfully.');
+    const data = await response.json();
+    if (!response.ok) { setBookingError(data.error || 'Could not book the repair appointment.'); return; }
+    setRepair(emptyRepair); setFieldErrors({}); setShowRepair(false); setMessage('Repair appointment requested successfully.');
   };
 
   const logout = () => {
@@ -77,7 +224,52 @@ const CustomerDashboard = () => {
         <section style={styles.actions}><div><p style={styles.kicker}>TECHNICIAN BOOKING</p><h2>Choose a repair time</h2><p style={styles.muted}>Book an available time slot with Technician 1 or Technician 2.</p></div><button onClick={() => setShowRepair(true)} style={styles.primaryButton}><Calendar size={17} /> Book technician</button></section>
       </main>
 
-      {showRepair && <Modal title="Book a repair appointment" onClose={() => setShowRepair(false)}><form onSubmit={submitRepair}><label style={styles.label}>Vehicle model<input required value={repair.vehicleModel} onChange={event => setRepair({ ...repair, vehicleModel: event.target.value })} style={styles.input} /></label><label style={styles.label}>License plate<input required value={repair.licensePlate} onChange={event => setRepair({ ...repair, licensePlate: event.target.value })} style={styles.input} /></label><label style={styles.label}>Problem description<textarea required value={repair.issueDescription} onChange={event => setRepair({ ...repair, issueDescription: event.target.value })} style={{ ...styles.input, minHeight: '80px' }} /></label><label style={styles.label}>Technician<select required value={repair.technician} onChange={event => setRepair({ ...repair, technician: event.target.value })} style={styles.input}><option value="">Choose Technician 1 or 2</option>{technicians.map(technician => <option key={technician._id} value={technician._id}>{technician.name} · {technician.status}</option>)}</select></label><label style={styles.label}>Preferred repair time<input required type="datetime-local" value={repair.appointmentDate} onChange={event => setRepair({ ...repair, appointmentDate: event.target.value })} style={styles.input} /></label><button type="submit" style={styles.primaryButton}>Request repair time</button></form></Modal>}
+      {showRepair && <Modal title="Book a repair appointment" onClose={() => setShowRepair(false)}>
+        <form onSubmit={submitRepair}>
+          <label style={styles.label}>Vehicle model
+            <input required value={repair.vehicleModel} onChange={event => updateRepairField('vehicleModel', event.target.value)} onBlur={() => setFieldErrors(validateRepairFields())} style={{ ...styles.input, borderColor: fieldErrors.vehicleModel ? '#f87171' : undefined }} />
+            {fieldErrors.vehicleModel && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.vehicleModel}</small>}
+          </label>
+          <label style={styles.label}>License plate
+            <input required value={repair.licensePlate} onChange={event => updateRepairField('licensePlate', event.target.value)} onBlur={() => setFieldErrors(validateRepairFields())} style={{ ...styles.input, borderColor: fieldErrors.licensePlate ? '#f87171' : undefined }} />
+            {fieldErrors.licensePlate && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.licensePlate}</small>}
+          </label>
+          <label style={styles.label}>Problem description
+            <textarea required value={repair.issueDescription} onChange={event => updateRepairField('issueDescription', event.target.value)} onBlur={() => setFieldErrors(validateRepairFields())} style={{ ...styles.input, minHeight: '80px', borderColor: fieldErrors.issueDescription ? '#f87171' : undefined }} />
+            {fieldErrors.issueDescription && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.issueDescription}</small>}
+          </label>
+          <label style={styles.label}>Technician
+            <select required value={repair.technician} onChange={event => {
+              updateRepairField('technician', event.target.value);
+              if (event.target.value) {
+                setAvailability({ ...emptyAvailability, loading: false });
+              }
+            }} style={{ ...styles.input, borderColor: fieldErrors.technician ? '#f87171' : undefined }}>
+              <option value="">Choose Technician 1 or 2</option>
+              {technicians.map(technician => <option key={technician._id} value={technician._id}>{technician.name} · {technician.status}</option>)}
+            </select>
+            {fieldErrors.technician && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.technician}</small>}
+          </label>
+          <label style={styles.label}>Appointment date
+            <input required type="date" min={today} value={repair.appointmentDate} onChange={event => updateRepairField('appointmentDate', event.target.value)} onBlur={() => setFieldErrors(validateRepairFields())} style={{ ...styles.input, borderColor: fieldErrors.appointmentDate ? '#f87171' : undefined }} />
+            {fieldErrors.appointmentDate && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.appointmentDate}</small>}
+          </label>
+          {availability.loading && <p className="booking-hint">Checking public holidays and available times…</p>}
+          {availability.holiday && <p role="alert" style={styles.error}>No bookings on {availability.holiday.name}, a Sri Lankan public holiday.</p>}
+          {availability.error && <p role="alert" style={styles.error}>{availability.error}</p>}
+          <label style={styles.label}>Available one-hour time slot
+            <select required value={repair.appointmentTime} disabled={!repair.appointmentDate || !repair.technician || availability.loading || Boolean(availability.holiday) || Boolean(availability.error)} onChange={event => updateRepairField('appointmentTime', event.target.value)} onBlur={() => setFieldErrors(validateRepairFields())} style={{ ...styles.input, borderColor: fieldErrors.appointmentTime ? '#f87171' : undefined }}>
+              <option value="">Select a time slot</option>
+              {availability.availableTimes.map(time => <option key={time} value={time}>{formatTimeSlot(time)}</option>)}
+            </select>
+            {fieldErrors.appointmentTime && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.appointmentTime}</small>}
+          </label>
+          <p className="booking-hint">One-hour appointments start hourly from 9:00 a.m. to 4:00 p.m. The workshop is open until 5:30 p.m. on Sri Lankan working days.</p>
+          {!availability.loading && !availability.holiday && repair.appointmentDate && repair.technician && availability.availableTimes.length === 0 && <p className="booking-hint">No appointment times are available for this date. Please choose another date.</p>}
+          {bookingError && <p role="alert" style={styles.error}>{bookingError}</p>}
+          <button type="submit" disabled={availability.loading || Boolean(availability.holiday) || Boolean(availability.error)} style={styles.primaryButton}>Request repair time</button>
+        </form>
+      </Modal>}
     </div>
   );
 };

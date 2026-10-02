@@ -1,24 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Building2, ClipboardList, LayoutDashboard, Moon, Package, ShoppingCart, Sun, Wrench, Users } from 'lucide-react';
+import { Building2, ClipboardList, LayoutDashboard, Package, ShoppingCart, Wrench, Users } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
 const Sidebar = () => {
-  const [isDark, setIsDark] = useState(() => document.body.classList.contains('theme-dark'));
-
-  useEffect(() => {
-    const handleThemeChange = () => setIsDark(document.body.classList.contains('theme-dark'));
-    window.addEventListener('welgama-theme-change', handleThemeChange);
-    return () => window.removeEventListener('welgama-theme-change', handleThemeChange);
-  }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
-    document.body.classList.toggle('theme-dark', nextTheme === 'dark');
-    setIsDark(nextTheme === 'dark');
-    localStorage.setItem('welgama-theme', nextTheme);
-    window.dispatchEvent(new CustomEvent('welgama-theme-change'));
-  };
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -68,10 +53,6 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-      <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${isDark ? 'light' : 'dark'} theme`}>
-        {isDark ? <Sun size={18} /> : <Moon size={18} />}
-        {isDark ? 'Light theme' : 'Dark theme'}
-      </button>
     </aside>
   );
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Building2, Eye, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:5000/api';
-const emptySupplier = { name: '', contactPerson: '', phone: '', email: '', address: '' };
+const emptySupplier = { name: '', contactPerson: '', phone: '', email: '', address: '', password: '' };
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
 
 const Suppliers = () => {
@@ -12,6 +12,9 @@ const Suppliers = () => {
   const [viewingSupplier, setViewingSupplier] = useState(null);
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [pendingWelcomeEmail, setPendingWelcomeEmail] = useState(null);
+  const [retryingEmail, setRetryingEmail] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchSuppliers = async () => {
@@ -36,28 +39,68 @@ const Suppliers = () => {
     );
   }, [search, suppliers]);
 
-  const updateField = (event) => setFormData({ ...formData, [event.target.name]: event.target.value });
+  const updateField = (event) => setFormData(current => ({ ...current, [event.target.name]: event.target.value }));
 
   const resetForm = () => {
     setFormData(emptySupplier);
     setEditingSupplier(null);
+    setError('');
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+    setSuccess('');
+
+    if (!editingSupplier && formData.password.length < 8) {
+      setError('Supplier login password must be at least 8 characters.');
+      return;
+    }
+
     try {
+      const payload = editingSupplier ? { ...formData, password: '' } : { ...formData };
       const response = await fetch(`${API_BASE_URL}/suppliers${editingSupplier ? `/${editingSupplier._id}` : ''}`, {
         method: editingSupplier ? 'PUT' : 'POST',
         headers: authHeaders(),
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Unable to save supplier');
+      if (!editingSupplier && !data.emailStatus?.sent) {
+        setPendingWelcomeEmail({ supplierId: data._id, email: data.email, password: payload.password });
+      } else {
+        setPendingWelcomeEmail(null);
+      }
       resetForm();
+      if (!editingSupplier) {
+        setSuccess(data.emailStatus?.sent
+          ? `Supplier account created. Welcome email sent to ${data.email}. Their password is in the attached protected PDF.`
+          : `Supplier account created, but the welcome email could not be sent: ${data.emailStatus?.error || 'Email status was not returned.'}`);
+      }
       await fetchSuppliers();
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const retryWelcomeEmail = async () => {
+    if (!pendingWelcomeEmail) return;
+    setRetryingEmail(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/suppliers/${pendingWelcomeEmail.supplierId}/welcome-email`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ password: pendingWelcomeEmail.password })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to send the welcome email');
+      setPendingWelcomeEmail(null);
+      setSuccess(`Welcome email sent to ${data.emailStatus.to}.`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRetryingEmail(false);
     }
   };
 
@@ -68,7 +111,8 @@ const Suppliers = () => {
       contactPerson: supplier.contactPerson,
       phone: supplier.phone,
       email: supplier.email,
-      address: supplier.address
+      address: supplier.address,
+      password: ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -103,8 +147,13 @@ const Suppliers = () => {
             <label>Contact Person<input required name="contactPerson" className="input" value={formData.contactPerson} onChange={updateField} placeholder="e.g. Nimal Perera" /></label>
             <label>Phone Number<input required name="phone" className="input" pattern="[0-9+() -]{7,}" title="Enter a valid phone number" value={formData.phone} onChange={updateField} placeholder="e.g. +94 77 123 4567" /></label>
             <label>Email<input required name="email" type="email" className="input" value={formData.email} onChange={updateField} placeholder="supplier@example.com" /></label>
+            {!editingSupplier && (
+              <label>Supplier login password<input required minLength="8" name="password" type="password" autoComplete="new-password" className="input" value={formData.password} onChange={updateField} placeholder="At least 8 characters" /></label>
+            )}
             <label>Address<textarea required name="address" className="input" rows="3" value={formData.address} onChange={updateField} placeholder="Street, city, country" /></label>
             {error && <p className="form-error" role="alert">{error}</p>}
+            {success && <p className="supplier-save-success" role="status">{success}</p>}
+            {pendingWelcomeEmail && <div className="form-actions"><button type="button" className="btn btn-outline" onClick={retryWelcomeEmail} disabled={retryingEmail}>{retryingEmail ? 'Sending...' : `Retry welcome email to ${pendingWelcomeEmail.email}`}</button></div>}
             <div className="form-actions"><button type="submit" className="btn btn-primary">{editingSupplier ? 'Update Supplier' : 'Save Supplier'}</button>{editingSupplier && <button type="button" className="btn btn-outline" onClick={resetForm}>Cancel</button>}</div>
           </form>
         </section>

@@ -93,3 +93,25 @@ export const deleteProduct = async (id) => {
   if (!res.ok) throw new Error('Failed to delete product');
 };
 
+export const getStockFlags = async () => {
+  const res = await fetch(`${API_BASE_URL}/stock-flags`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to fetch stock alerts');
+  }
+  return res.json();
+};
+
+export const refreshStockFlags = async () => {
+  const res = await fetch(`${API_BASE_URL}/stock-flags/refresh`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to refresh stock alerts');
+  }
+  return res.json();
+};

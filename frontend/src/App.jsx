@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Inventory from './pages/Inventory';
 import Sales from './pages/Sales';
@@ -38,16 +38,56 @@ const ThemeSwitch = () => {
 
 // Protected Route wrapper
 const ProtectedRoute = ({ allowedRoles, children }) => {
+  const location = useLocation();
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+  const [authCheck, setAuthCheck] = useState({ token: null, status: 'checking', error: '' });
+  const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    if (!token) return undefined;
+
+    let cancelled = false;
+    fetch('http://localhost:5000/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(async response => {
+      if (cancelled) return;
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        setAuthCheck({ token, status: 'unauthenticated', error: '' });
+        return;
+      }
+      if (!response.ok) {
+        setAuthCheck({ token, status: 'error', error: `Could not verify your sign-in (HTTP ${response.status}).` });
+        return;
+      }
+      const verifiedUser = await response.json();
+      if (!cancelled) setAuthCheck({ token, status: 'authenticated', error: '', user: verifiedUser });
+    }).catch(() => {
+      if (!cancelled) setAuthCheck({ token, status: 'error', error: 'Could not reach the sign-in service. Check that the server is running, then retry.' });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, retryCount]);
 
   if (!token || !user) {
-    return <Navigate to="/login" replace />;
+    const requiredRole = allowedRoles?.length === 1 ? allowedRoles[0] : null;
+    const returnTo = requiredRole === 'Owner' && location.pathname.startsWith('/admin/')
+      ? `${location.pathname}${location.search}`
+      : null;
+    const query = new URLSearchParams();
+    if (requiredRole) query.set('role', requiredRole);
+    if (returnTo) query.set('returnTo', returnTo);
+    return <Navigate to={`/login${query.size ? `?${query.toString()}` : ''}`} replace />;
   }
 
-  let parsed;
   try {
-    parsed = JSON.parse(user);
+    JSON.parse(user);
   } catch {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -55,9 +95,24 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
     sessionStorage.removeItem('user');
     return <Navigate to="/login" replace />;
   }
-  if (allowedRoles && !allowedRoles.includes(parsed.role)) {
+
+  if (authCheck.token !== token || authCheck.status === 'checking') {
+    return <div role="status" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>Checking your sign-in…</div>;
+  }
+
+  if (authCheck.status === 'error') {
+    return (
+      <div role="alert" style={{ minHeight: '100vh', display: 'grid', placeContent: 'center', gap: '1rem', textAlign: 'center', padding: '2rem' }}>
+        <p>{authCheck.error}</p>
+        <button type="button" onClick={() => setRetryCount(count => count + 1)}>Retry</button>
+      </div>
+    );
+  }
+
+  const verifiedRole = authCheck.user?.role;
+  if (allowedRoles && !allowedRoles.includes(verifiedRole)) {
     // Redirect to their own dashboard
-    switch (parsed.role) {
+    switch (verifiedRole) {
       case 'Owner': return <Navigate to="/admin/dashboard" replace />;
       case 'Customer': return <Navigate to="/customer/dashboard" replace />;
       case 'Technician': return <Navigate to="/technician/dashboard" replace />;

@@ -29,6 +29,130 @@
 .invoice-customer span { display: block; color: var(--text-muted); font-size: .72rem; }
 .invoice-customer strong { display: block; margin-top: .3rem; }
 .repair-invoice h4 { margin: 1.1rem 0 .7rem; }
+.invoice-email-status { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1rem; padding: .8rem; border-radius: .5rem; font-size: .85rem; }
+.invoice-email-status span { display: flex; align-items: center; gap: .5rem; }
+.invoice-email-status.sent { color: #047857; background: #d1fae5; }
+.invoice-email-status.failed { color: #b91c1c; background: #fee2e2; }
+.invoice-result { display: flex; flex-direction: column; gap: .5rem; margin-top: 1.25rem; }
+.customer-invoice { width: 100%; padding: 1.75rem 1.5rem; background: #fff; color: #222; }
+.customer-invoice-brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; text-align: center; }
+.customer-invoice-brand img { max-height: 68px; object-fit: contain; }
+.customer-invoice-brand h2 { margin: .45rem 0 .1rem; color: #111827; font-size: 1.45rem; font-weight: 750; }
+.customer-invoice-brand p { margin: 0; color: #5d687a; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.customer-invoice-details { width: 100%; margin-bottom: 1.5rem; border-collapse: collapse; font-size: .76rem; }
+.customer-invoice-details th, .customer-invoice-details td { border: 1px solid #d5d9df; padding: .55rem .6rem; text-align: left; overflow-wrap: anywhere; }
+.customer-invoice-details th { width: 15%; background: #f0f2f5; color: #30343b; font-weight: 650; }
+.customer-invoice-details td { color: #30343b; }
+.invoice-payment-text.paid { color: #047857; }
+.invoice-payment-text.pending { color: #b45309; }
+.customer-invoice-items-heading { margin: 0 0 .5rem 1rem; color: #222; font-size: .9rem; }
+.customer-invoice-table { border: 1px solid #c8cdd4; background: #fff; }
+.customer-invoice-table table { min-width: 560px; }
+.customer-invoice-table th { padding: .65rem .55rem; background: #222; color: #fff; }
+.customer-invoice-table td { padding: .65rem .55rem; border-color: #d5d9df; color: #222; }
+.customer-invoice-table tbody tr:nth-child(even) { background: #f7f8fa; }
+.invoice-number-cell { text-align: center; }
+.invoice-amount-cell { text-align: right; white-space: nowrap; }
+.customer-invoice-totals { width: min(100%, 390px); margin: 1rem 0 0 auto; }
+.customer-invoice-totals > div { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem .55rem; color: #222; font-size: .8rem; }
+.customer-invoice-totals strong { color: #222; font-weight: 500; }
+.customer-invoice-totals .customer-invoice-total { border-top: 1px solid #222; background: #f0f2f5; font-weight: 700; }
+.customer-invoice-totals .customer-invoice-total strong { font-weight: 700; }
+.customer-invoice-payment { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-top: 1.5rem; padding: .7rem; border: 1px solid #cbd2db; background: #f8f9fb; color: #222; font-size: .76rem; }
+.customer-invoice-footer { margin: 1.4rem 1rem 0; color: #60656d; font-size: .68rem; }
+.parts-only-invoice .invoice-email-status, .repair-invoice .invoice-email-status { margin-top: .25rem; }
+.sales-history-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 1rem; margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: .65rem; background: var(--bg-card); }
+.sales-history-toolbar > div { display: flex; flex-direction: column; gap: .2rem; }
+.sales-history-toolbar > div strong { color: var(--text-main); font-size: .88rem; }
+.sales-history-toolbar > div span { color: var(--text-muted); font-size: .76rem; }
+.sales-billing-tabs { display: flex; gap: .4rem; padding: .3rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: .65rem; background: var(--bg-card); }
+.sales-billing-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .65rem .9rem; border: 0; border-radius: .45rem; background: transparent; color: var(--text-muted); cursor: pointer; font: inherit; font-size: .82rem; font-weight: 600; }
+.sales-billing-tabs button.active { background: rgba(59,130,246,.12); color: var(--primary); }
+.parts-only-workspace, .parts-only-form { display: flex; flex-direction: column; gap: 1rem; }
+.parts-contact-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.parts-contact-fields label, .parts-picker-row label, .parts-sale-options label, .parts-product-picker > label { display: flex; flex-direction: column; gap: .4rem; color: var(--text-muted); font-size: .78rem; font-weight: 600; }
+.parts-picker-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; align-items: end; gap: .75rem; margin-bottom: 1rem; }
+.parts-product-picker { position: relative; min-width: 0; }
+.parts-product-picker .supplier-search { width: 100%; }
+.parts-product-picker .supplier-search input { min-width: 0; }
+.parts-product-results { position: absolute; z-index: 5; top: calc(100% + .35rem); right: 0; left: 0; max-height: 270px; overflow-y: auto; border: 1px solid var(--border); border-radius: .55rem; background: var(--bg-card); box-shadow: 0 12px 28px rgba(15,23,42,.18); }
+.parts-product-results button { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: .75rem; padding: .7rem .8rem; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--text-main); text-align: left; cursor: pointer; }
+.parts-product-results button:last-of-type { border-bottom: 0; }
+.parts-product-results button:hover, .parts-product-results button.selected { background: rgba(59,130,246,.1); }
+.parts-product-results button span { display: flex; min-width: 0; flex-direction: column; gap: .2rem; }
+.parts-product-results button span strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.parts-product-results button small { color: var(--text-muted); font-size: .7rem; }
+.parts-product-results button > strong { flex: 0 0 auto; color: var(--primary); font-size: .8rem; }
+.parts-product-results > p { padding: .8rem; color: var(--text-muted); font-size: .78rem; }
+.selected-parts-product { display: flex; align-items: center; gap: .3rem; margin-top: .4rem; color: var(--text-muted); font-size: .7rem; }
+.selected-parts-product svg { color: var(--success); }
+.parts-picker-row > .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }
+.parts-cart-table { margin-top: .25rem; }
+.parts-cart-quantity { min-width: 76px; max-width: 100px; padding: .45rem .55rem; }
+.parts-sale-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; max-width: 460px; margin: 1rem 0 0 auto; }
+.parts-sale-summary { max-width: 460px; margin-left: auto; }
+.parts-invoice-summary { max-width: 340px; margin: 1rem 0 0 auto; }
+.parts-only-invoice h4 { margin: 1rem 0 .7rem; }
+.parts-invoice-actions { margin-bottom: .75rem; }
+.monthly-performance { margin-top: 1.25rem; }
+.monthly-performance-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: .9rem; }
+.monthly-performance-heading h4 { margin-top: .3rem; }
+.monthly-performance-heading .eyebrow { display: flex; align-items: center; gap: .35rem; }
+.monthly-performance-totals { display: flex; flex-wrap: wrap; gap: .75rem; }
+.monthly-performance-totals > div { min-width: 145px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: .55rem; }
+.monthly-performance-totals span { display: block; color: var(--text-muted); font-size: .7rem; }
+.monthly-performance-totals strong { display: block; margin-top: .25rem; color: var(--text-main); font-size: .95rem; }
+.monthly-performance-note { margin: -.15rem 0 .8rem; color: #b45309; font-size: .75rem; }
+.monthly-performance-legend { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: .7rem; color: var(--text-muted); font-size: .72rem; }
+.monthly-performance-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.monthly-performance-legend i { width: .65rem; height: .65rem; border-radius: 50%; }
+.monthly-performance-scale-note { margin-left: auto; font-style: italic; }
+.monthly-sales-key { background: #3b82f6; }
+.monthly-profit-key { background: #10b981; }
+.monthly-performance-chart-scroll { overflow-x: auto; }
+.monthly-performance-chart { display: grid; grid-template-columns: repeat(12, minmax(78px, 1fr)); gap: .35rem; min-width: 960px; height: 260px; padding: 1.5rem .4rem 0; border-bottom: 1px solid var(--border); }
+.monthly-performance-column { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: .55rem; min-width: 0; }
+.monthly-performance-column > strong { color: var(--text-muted); font-size: .74rem; }
+.monthly-performance-bars { display: flex; justify-content: center; align-items: flex-end; gap: 5px; width: 100%; height: 205px; padding-top: 1.25rem; background: repeating-linear-gradient(to top, transparent 0, transparent 48px, var(--border) 49px, transparent 50px); }
+.monthly-performance-bar-slot { position: relative; display: flex; justify-content: center; align-items: flex-end; width: min(34px, 40%); height: 100%; }
+.monthly-performance-bar-slot > span { position: absolute; z-index: 1; left: 50%; color: var(--text-main); font-size: .58rem; font-weight: 600; line-height: 1; white-space: nowrap; transform: translateX(-50%); }
+.monthly-performance-bar-slot > i { display: block; width: 100%; min-height: 0; border-radius: .25rem .25rem .1rem .1rem; transition: height .3s ease; }
+.monthly-sales-bar { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+.monthly-profit-bar { background: linear-gradient(180deg, #34d399, #059669); }
+.monthly-profit-bar.negative { background: linear-gradient(180deg, #fca5a5, #dc2626); }
+.sales-history-modal { display: flex; flex-direction: column; width: min(100%, 760px); max-height: min(85vh, 850px); overflow: hidden; }
+.sales-history-modal .modal-heading { flex-shrink: 0; margin-bottom: 1rem; }
+.sales-history-modal .modal-heading p { margin-top: .25rem; color: var(--text-muted); font-size: .76rem; }
+.sales-history-search { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; padding: .65rem .8rem; margin-bottom: .85rem; border: 1px solid var(--border); border-radius: .5rem; color: var(--text-muted); }
+.sales-history-search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text-main); font: inherit; }
+.sales-history-results { display: flex; flex-direction: column; gap: .7rem; overflow-y: auto; padding-right: .2rem; }
+.sales-history-entry { padding: .9rem; border: 1px solid var(--border); border-radius: .55rem; }
+.sales-history-entry-heading, .sales-history-entry-heading > div { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; }
+.sales-history-entry-heading > div { flex-direction: column; gap: .2rem; }
+.sales-history-entry-heading strong { color: var(--text-main); font-size: .88rem; }
+.sales-history-entry-heading span, .sales-history-meta, .sales-history-job { color: var(--text-muted); font-size: .75rem; }
+.sales-history-meta { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin-top: .65rem; }
+.sales-history-job { margin: .55rem 0 0; }
+.sales-history-entry ul { display: flex; flex-direction: column; gap: .35rem; padding: .65rem 0 0; margin: .65rem 0 0; border-top: 1px solid var(--border); list-style: none; }
+.sales-history-entry li { display: flex; justify-content: space-between; gap: 1rem; color: var(--text-main); font-size: .78rem; }
+.sales-history-entry li strong { white-space: nowrap; }
+.sales-history-discount { margin-top: .55rem; color: #b45309; font-size: .78rem; text-align: right; }
+.pos-checkout { display: flex; flex-wrap: wrap; align-items: end; gap: .8rem; margin-top: 1rem; }
+.pos-checkout label { display: flex; flex: 1 1 190px; flex-direction: column; gap: .35rem; color: var(--text-muted); font-size: .75rem; }
+.pos-checkout > span { flex: 1 1 100%; color: var(--text-main); font-size: .82rem; }
+body.theme-dark .sales-history-toolbar { background: #101827; }
+body.theme-dark .sales-history-entry { background: #101827; }
+body.theme-dark .sales-history-discount { color: #fbbf24; }
+@media (max-width: 600px) {
+  .sales-history-toolbar { align-items: flex-start; flex-direction: column; }
+  .monthly-performance-heading { flex-direction: column; }
+  .monthly-performance-totals { width: 100%; }
+  .monthly-performance-totals > div { flex: 1 1 135px; }
+  .monthly-performance-chart { min-width: 960px; }
+  .sales-history-modal { padding: 1rem; }
+  .sales-history-entry-heading { align-items: flex-start; }
+  .sales-history-meta { flex-direction: column; gap: .25rem; }
+}
 .pos-card { margin-top: 1.25rem; }
 .pos-products { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .65rem; }
 .pos-product { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; padding: .75rem; border: 1px solid var(--border); border-radius: .5rem; background: rgba(15,23,42,.45); color: var(--text-main); text-align: left; cursor: pointer; }
@@ -37,8 +161,44 @@
 .pos-product small { color: var(--text-muted); }
 .pos-checkout { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border); color: var(--text-muted); }
 @media (max-width: 900px) { .repair-billing-layout { grid-template-columns: 1fr; } }
-@media (max-width: 620px) { .sales-page-heading, .billing-section-heading, .pos-checkout { flex-direction: column; align-items: stretch; }.billing-select-grid, .cost-detail { grid-template-columns: 1fr; }.billing-actions { flex-direction: column; }.billing-actions .btn { width: 100%; }.pos-checkout .btn { width: 100%; } }
-@media print { .sales-module > *:not(.repair-invoice) { display: none !important; }.repair-invoice { margin: 0; border: 0; box-shadow: none; background: white; color: #172033; }.repair-invoice .bill-header, .repair-invoice .summary-total, .repair-invoice .invoice-customer { border-color: #dce1e8; }.repair-invoice .summary-lines span, .repair-invoice .invoice-customer span { color: #5d687a; }.repair-invoice .summary-lines strong, .repair-invoice .summary-total strong, .repair-invoice .invoice-customer strong { color: #172033; }.repair-invoice .table-container { border-color: #dce1e8; background: white; }.repair-invoice th { background: #eef1f5; color: #172033; }.repair-invoice td { color: #172033; border-color: #dce1e8; } }
+@media (max-width: 620px) { .sales-page-heading, .billing-section-heading, .pos-checkout { flex-direction: column; align-items: stretch; }.billing-select-grid, .cost-detail, .parts-contact-fields, .parts-sale-options { grid-template-columns: 1fr; }.parts-picker-row { grid-template-columns: 1fr 90px; }.parts-picker-row > .btn { grid-column: 1 / -1; }.billing-actions { flex-direction: column; }.billing-actions .btn { width: 100%; }.pos-checkout .btn { width: 100%; }.sales-billing-tabs button { flex: 1; padding: .6rem .4rem; font-size: .75rem; } }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body { margin: 0 !important; background: #fff !important; }
+  body * { visibility: hidden !important; }
+  .customer-invoice, .customer-invoice * { visibility: visible !important; }
+  .customer-invoice {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  .sales-module > * { display: none !important; }
+  .sales-module > .repair-invoice, .sales-module > .parts-only-workspace { display: block !important; }
+  .sales-module > .parts-only-workspace > *:not(.parts-only-invoice) { display: none !important; }
+  .repair-invoice, .parts-only-invoice { display: block !important; margin: 0; border: 0; box-shadow: none; background: white; color: #172033; }
+  .invoice-result > :not(.customer-invoice) { display: none !important; }
+  .customer-invoice { display: block !important; width: 100%; padding: 0; border: 0; box-shadow: none; }
+  .customer-invoice-brand { margin-bottom: 1.2rem; }
+  .customer-invoice-details { page-break-inside: avoid; }
+  .customer-invoice-table { overflow: visible; border: 0; }
+  .customer-invoice-table table { min-width: 0; }
+  .customer-invoice-table th { background: #222 !important; color: #fff !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .customer-invoice-table td { color: #222 !important; }
+  .customer-invoice-totals, .customer-invoice-payment { page-break-inside: avoid; }
+  .customer-invoice-payment, .customer-invoice-total { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .bill-actions, .invoice-email-status, .parts-invoice-actions { display: none !important; }
+  .repair-invoice .bill-header, .parts-only-invoice .bill-header, .repair-invoice .summary-total, .parts-only-invoice .summary-total, .repair-invoice .invoice-customer, .parts-only-invoice .invoice-customer { border-color: #dce1e8; }
+  .repair-invoice .summary-lines span, .parts-only-invoice .summary-lines span, .repair-invoice .invoice-customer span, .parts-only-invoice .invoice-customer span { color: #5d687a; }
+  .repair-invoice .summary-lines strong, .parts-only-invoice .summary-lines strong, .repair-invoice .summary-total strong, .parts-only-invoice .summary-total strong, .repair-invoice .invoice-customer strong, .parts-only-invoice .invoice-customer strong { color: #172033; }
+  .repair-invoice .table-container, .parts-only-invoice .table-container { border-color: #dce1e8; background: white; }
+  .repair-invoice th, .parts-only-invoice th { background: #eef1f5; color: #172033; }
+  .repair-invoice td, .parts-only-invoice td { color: #172033; border-color: #dce1e8; }
+}
 :root {
   --bg-dark: #f4f7fb;
   --bg-card: #ffffff;
@@ -284,12 +444,60 @@ tr:hover {
 .mb-6 { margin-bottom: 1.5rem; }
 .badge-warning { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }.badge-info { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
 .repair-heading, .repair-stats, .repair-tabs, .repair-filters { display: flex; align-items: center; gap: 1rem; }.repair-heading { justify-content: space-between; align-items: flex-start; margin-bottom: 1.4rem; }.repair-heading h3 { margin-top: .4rem; font-size: 1.6rem; }.repair-stats { color: var(--text-muted); font-size: .78rem; }.repair-stats strong { color: var(--text-main); font-size: 1.25rem; }.repair-tabs { border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }.repair-tabs button { display: inline-flex; align-items: center; gap: .4rem; padding: .75rem .2rem; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--text-muted); cursor: pointer; }.repair-tabs button.active { border-color: var(--primary); color: #93c5fd; }.repair-filters { align-items: stretch; }.repair-filters .input { width: 145px; padding: .6rem; }.repair-grid { display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1.2fr); gap: 1.25rem; }.vehicle-fields { display: grid; grid-template-columns: 1.2fr 1fr 1fr 80px; gap: .5rem; }.job-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }.job-form label { display: flex; flex-direction: column; gap: .4rem; color: var(--text-muted); font-size: .78rem; font-weight: 600; }.job-form label:nth-child(3), .job-form label:nth-child(5), .job-form .form-actions { grid-column: 1 / -1; }.job-fields { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; grid-column: 1 / -1; }.job-fields label { min-width: 0; }.table-muted { display: block; margin-top: .25rem; color: var(--text-muted); font-size: .72rem; }.priority-low { color: #94a3b8; }.priority-medium { color: #93c5fd; }.priority-high { color: #fcd34d; }.priority-urgent { color: #fca5a5; font-weight: 700; }.customer-list { display: flex; flex-direction: column; gap: .55rem; max-height: 500px; overflow: auto; }.customer-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .8rem; border: 1px solid var(--border); border-radius: .55rem; }.customer-row div { display: flex; flex-direction: column; gap: .25rem; }.customer-row span { color: var(--text-muted); font-size: .75rem; }.repair-error { margin-bottom: 1rem; }
+.input-validation-error { border-color: #ef4444 !important; }
+.field-validation-error { display: block; margin-top: .2rem; color: #dc2626; font-size: .75rem; font-weight: 500; }
+.customer-vehicle-editor { display: grid; grid-template-columns: 1.2fr 1fr 1fr .7fr auto; align-items: start; gap: .6rem; margin-bottom: .75rem; padding: .75rem; border: 1px solid var(--border); border-radius: .6rem; }
+.customer-vehicle-editor .input { width: 100%; min-width: 0; }
+@media (max-width: 700px) { .customer-vehicle-editor { grid-template-columns: 1fr 1fr; }.customer-vehicle-editor > button { justify-self: start; } }
 .technician-portal { min-height: 100vh; background: #080d18; color: #f8fafc; }.technician-header { min-height: 68px; display: flex; justify-content: space-between; align-items: center; padding: 0 5vw; border-bottom: 1px solid rgba(255,255,255,.08); background: #0c1322; }.tech-brand, .tech-user { display: flex; align-items: center; gap: .65rem; }.tech-brand span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: #10b981; }.tech-brand small { color: #6ee7b7; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; }.tech-user { color: #cbd5e1; font-size: .85rem; }.tech-user button { display: inline-flex; align-items: center; gap: .35rem; margin-left: .7rem; padding: .5rem .7rem; border: 1px solid rgba(255,255,255,.12); border-radius: 7px; background: transparent; color: #cbd5e1; cursor: pointer; }.technician-main { max-width: 1180px; margin: auto; padding: 2.5rem 5vw; }.technician-welcome { display: flex; justify-content: space-between; align-items: center; gap: 2rem; padding: 2.4rem; margin-bottom: 1.5rem; border: 1px solid rgba(16,185,129,.2); border-radius: 14px; background: linear-gradient(120deg,#0c332b,#101827); color: #6ee7b7; }.technician-welcome h1 { margin: .35rem 0; color: #f8fafc; font-size: 1.9rem; }.technician-welcome p:not(.portal-kicker) { color: #a8b1c1; }.tech-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }.tech-stats div { display: grid; grid-template-columns: auto 1fr; gap: .3rem .65rem; padding: 1.1rem; border: 1px solid rgba(255,255,255,.09); border-radius: 10px; background: #101827; color: #6ee7b7; }.tech-stats span { color: #94a3b8; font-size: .8rem; }.tech-stats strong { grid-column: 2; color: #f8fafc; font-size: 1.4rem; }.assigned-jobs { padding: 1.5rem; border: 1px solid rgba(255,255,255,.09); border-radius: 12px; background: #0d1524; }.tech-job-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: .8rem; }.tech-job-card { padding: 1rem; border: 1px solid rgba(255,255,255,.08); border-radius: 9px; background: #101827; }.tech-job-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }.tech-job-card h3 { margin: 1rem 0 .35rem; font-size: 1rem; }.tech-vehicle, .tech-issue { color: #94a3b8; font-size: .8rem; }.tech-issue { min-height: 38px; margin-top: .8rem; line-height: 1.5; }.car-icon { color: #6ee7b7; font-size: .65rem; font-weight: 700; }.tech-job-meta { display: flex; justify-content: space-between; margin: 1rem 0; color: #64748b; font-size: .72rem; }.tech-job-meta b { color: #fcd34d; }.tech-open, .tech-save { width: 100%; }.tech-modal { width: min(100%,620px); }.job-customer-detail { display: grid; grid-template-columns: 110px 1fr; gap: .7rem; margin-bottom: 1rem; padding: .85rem; border: 1px solid var(--border); border-radius: .5rem; }.job-customer-detail span { color: #94a3b8; font-size: .75rem; }.job-customer-detail strong { font-size: .82rem; }.tech-label { display: flex; flex-direction: column; gap: .4rem; margin-top: .9rem; color: #94a3b8; font-size: .78rem; }.parts-form { display: grid; grid-template-columns: 1fr 90px auto; gap: .5rem; margin-top: 1rem; }.used-parts { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }.used-parts span { padding: .3rem .5rem; border-radius: 99px; background: rgba(16,185,129,.12); color: #6ee7b7; font-size: .72rem; }.tech-save { margin-top: 1rem; }
 @media (max-width: 800px) { .repair-grid { grid-template-columns: 1fr; }.job-fields { grid-template-columns: 1fr 1fr; }.purchase-item-row { overflow-x: auto; } }
 @media (max-width: 600px) { .repair-heading, .repair-filters, .repair-tabs { align-items: flex-start; flex-direction: column; }.repair-tabs { padding-bottom: .5rem; }.repair-filters, .repair-filters .supplier-search, .repair-filters .input { width: 100%; }.vehicle-fields, .job-form, .job-fields { grid-template-columns: 1fr; }.job-form label:nth-child(3), .job-form label:nth-child(5), .job-form .form-actions, .job-fields { grid-column: auto; }.technician-header { padding: 0 1rem; }.tech-brand small, .tech-user > svg { display: none; }.technician-main { padding: 1.5rem 1rem; }.technician-welcome { padding: 1.5rem; }.technician-welcome h1 { font-size: 1.45rem; }.tech-stats { grid-template-columns: 1fr; }.assigned-jobs { padding: 1rem; }.parts-form { grid-template-columns: 1fr 80px; }.parts-form button { grid-column: 1 / -1; } }
 .dashboard-orders-card { margin-top: 1.25rem; }
 .repair-bill-total { margin-bottom: .8rem; color: #fcd34d; font-size: .78rem; }.repair-billing-queue { margin-top: 1.25rem; }.repair-billing-queue h3 { display: flex; align-items: center; gap: .45rem; }.repair-billing-queue .list-heading { align-items: flex-start; }
 .dashboard-repair-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; margin-bottom: 1rem; }.dashboard-repair-summary div { padding: .8rem; border: 1px solid var(--border); border-radius: .5rem; }.dashboard-repair-summary span { display: block; color: var(--text-muted); font-size: .75rem; }.dashboard-repair-summary strong { display: block; margin-top: .3rem; font-size: 1.3rem; }.dashboard-repair-table { margin-top: 1rem; }
+
+.tech-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 1rem; }
+.tech-board-column { min-width: 0; padding: .9rem; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: #0a1120; }
+.tech-board-column.assigned { border-top: 3px solid #f59e0b; }
+.tech-board-column.in-progress { border-top: 3px solid #3b82f6; }
+.tech-board-column.done { border-top: 3px solid #10b981; }
+.tech-column-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .8rem; }
+.tech-column-heading h3 { display: flex; align-items: center; gap: .45rem; margin: 0; color: #e2e8f0; font-size: .9rem; }
+.tech-column-heading svg { color: #94a3b8; }
+.tech-column-count { display: grid; place-items: center; min-width: 1.55rem; height: 1.55rem; padding: 0 .3rem; border-radius: 99px; background: rgba(148,163,184,.14); color: #cbd5e1; font-size: .72rem; font-weight: 700; }
+.tech-board-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: 0 0 1rem; }
+.tech-board-controls label { display: flex; align-items: center; gap: .5rem; color: #94a3b8; font-size: .78rem; }
+.tech-board-controls select { min-height: 2.25rem; padding: .35rem .6rem; border: 1px solid rgba(255,255,255,.12); border-radius: 7px; background: #101827; color: #e2e8f0; font: inherit; }
+.tech-column-jobs { display: flex; flex-direction: column; gap: .7rem; }
+.tech-column-empty { padding: 1.5rem .7rem; border: 1px dashed rgba(148,163,184,.2); border-radius: 8px; color: #94a3b8; font-size: .8rem; text-align: center; }
+.tech-board .tech-job-card { padding: .9rem; background: #101827; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.tech-board .tech-job-card h3 { margin: .8rem 0 .3rem; }
+.tech-board .tech-job-card .tech-issue { min-height: 0; }
+.tech-board .tech-job-card .tech-open { margin-top: .2rem; }
+.tech-appointment { display: flex; align-items: flex-start; gap: .5rem; margin: .15rem 0 .9rem; padding: .65rem; border-radius: 7px; background: rgba(59,130,246,.09); color: #93c5fd; font-size: .75rem; line-height: 1.45; }
+.tech-appointment svg { flex: 0 0 auto; margin-top: .08rem; }
+.tech-appointment span { display: flex; flex-direction: column; gap: .12rem; }
+.tech-appointment strong { color: #bfdbfe; font-size: .7rem; }
+.booking-hint { margin: .35rem 0 .75rem; color: #94a3b8; font-size: .78rem; line-height: 1.5; }
+.customer-portal select:disabled,
+.customer-portal button:disabled { cursor: not-allowed; opacity: .6; }
+body:not(.theme-dark) .technician-portal .tech-board-column { background: #f1f5f9; border-color: #dce3ed; }
+body:not(.theme-dark) .technician-portal .tech-column-heading h3 { color: #172033 !important; }
+body:not(.theme-dark) .technician-portal .tech-column-count { background: #e2e8f0; color: #475569; }
+body:not(.theme-dark) .technician-portal .tech-column-empty { border-color: #cbd5e1; color: #64748b; }
+body:not(.theme-dark) .technician-portal .tech-board .tech-job-card { background: #ffffff !important; border-color: #dce3ed !important; }
+body:not(.theme-dark) .technician-portal .tech-board .tech-job-card h3 { color: #172033 !important; }
+body:not(.theme-dark) .technician-portal .tech-board-controls label { color: #475569; }
+body:not(.theme-dark) .technician-portal .tech-board-controls select { background: #ffffff; border-color: #cbd5e1; color: #172033; }
+body:not(.theme-dark) .technician-portal .tech-appointment { background: #eff6ff; color: #1d4ed8; }
+body:not(.theme-dark) .technician-portal .tech-appointment strong { color: #1e40af; }
+body.theme-dark .technician-portal .tech-board-column { background: #0a1120 !important; border-color: rgba(255,255,255,.08) !important; }
+body.theme-dark .technician-portal .tech-board .tech-job-card { background: #101827 !important; border-color: rgba(255,255,255,.09) !important; }
+body.theme-dark .technician-portal .tech-board-controls select { background: #101827 !important; color: #f8fafc !important; border-color: rgba(255,255,255,.12) !important; }
+body.theme-dark .technician-portal .tech-appointment { background: rgba(59,130,246,.12) !important; color: #93c5fd !important; }
+body.theme-dark .technician-portal .tech-appointment strong { color: #bfdbfe !important; }
+@media (max-width: 900px) { .tech-board { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .tech-board { gap: .75rem; }.tech-board-column { padding: .75rem; }.tech-board-controls { align-items: stretch; flex-direction: column; }.tech-board-controls label { justify-content: space-between; }.tech-board-controls select { flex: 1; } }
 
 .purchase-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }.purchase-heading h3 { margin-top: 0.4rem; font-size: 1.65rem; }.purchase-error { margin-bottom: 1rem; }.purchase-create-card, .purchase-history-card { margin-bottom: 1.25rem; }
 .purchase-top-fields { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1rem; margin-bottom: 1.8rem; }.purchase-top-fields label, .purchase-item-row > label { display: flex; flex-direction: column; gap: 0.4rem; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; }.purchase-top-fields select { appearance: auto; }
@@ -321,6 +529,15 @@ tr:hover {
 .portal-table-wrap { overflow-x: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }.portal-table-wrap th { background: #151e2e; }.portal-table-wrap td, .portal-table-wrap th { white-space: nowrap; }.portal-table-wrap td { vertical-align: top; }.portal-empty { padding: 2.5rem; text-align: center; color: #94a3b8; }.order-items { display: flex; flex-direction: column; gap: 0.3rem; }.order-items span { color: #cbd5e1; }.order-items b { color: #fbbf24; font-weight: 500; }
 .status-badge { display: inline-block; padding: 0.28rem 0.55rem; border-radius: 99px; background: rgba(148,163,184,0.14); color: #cbd5e1; font-size: 0.72rem; }.status-badge.confirmed, .status-badge.delivered, .status-badge.received { background: rgba(16,185,129,0.14); color: #6ee7b7; }.status-badge.in-transit { background: rgba(59,130,246,0.14); color: #93c5fd; }.status-badge.cancelled, .status-badge.rejected { background: rgba(239,68,68,0.14); color: #fca5a5; }
 .order-actions { display: flex; gap: 0.4rem; }.order-complete, .order-reject { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.4rem 0.55rem; border-radius: 6px; font-size: 0.7rem; cursor: pointer; }.order-complete { border: 1px solid rgba(16,185,129,0.35); background: rgba(16,185,129,0.12); color: #6ee7b7; }.order-reject { border: 1px solid rgba(239,68,68,0.35); background: rgba(239,68,68,0.1); color: #fca5a5; }.order-closed { color: #64748b; font-size: 0.72rem; }
+.rejection-dialog-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1rem; background: rgba(15,23,42,0.58); }
+.rejection-dialog { width: min(100%, 420px); padding: 1.4rem; border: 1px solid #dce3ed; border-radius: 12px; background: #fff; color: #172033; box-shadow: 0 18px 50px rgba(15,23,42,0.25); }
+.rejection-dialog h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+.rejection-dialog label { display: block; margin-bottom: 0.45rem; color: #475569; font-size: 0.85rem; }
+.rejection-dialog select { width: 100%; padding: 0.7rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 7px; background: #fff; color: #172033; font: inherit; }
+.rejection-dialog-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.2rem; }
+.rejection-dialog-actions button { padding: 0.55rem 0.75rem; border-radius: 7px; font-weight: 600; }
+.rejection-cancel { border: 1px solid #cbd5e1; background: #fff; color: #334155; cursor: pointer; }
+.rejection-dialog .order-reject:disabled { cursor: not-allowed; opacity: 0.5; }
 @media (max-width: 700px) { .supplier-portal-header { padding: 0 1rem; }.portal-brand small, .portal-user > svg { display: none; }.portal-user { font-size: 0.75rem; }.supplier-portal-main { padding: 1.5rem 1rem; }.supplier-welcome { padding: 1.5rem; }.supplier-welcome h1 { font-size: 1.5rem; }.portal-stats { grid-template-columns: 1fr; }.portal-orders { padding: 1rem; } }
 
 .supplier-page-heading,
@@ -348,9 +565,14 @@ tr:hover {
 .supplier-form textarea { resize: vertical; min-height: 86px; }
 .form-actions { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
 .form-error { padding: 0.7rem; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #fca5a5; font-size: 0.8rem; }
+.supplier-save-success { padding: .7rem; border: 1px solid rgba(16,185,129,.3); border-radius: .5rem; background: rgba(16,185,129,.1); color: #047857; font-size: .8rem; }
+.supplier-login-help { margin-top: 1.5rem; color: #94a3b8; font-size: .8rem; line-height: 1.5; text-align: center; }
 .list-heading { align-items: flex-start; margin-bottom: 1.25rem; }
 .supplier-search { display: flex; align-items: center; gap: 0.5rem; width: min(260px, 100%); padding: 0.1rem 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-muted); background: rgba(15, 23, 42, 0.6); }
 .supplier-search input { width: 100%; padding: 0.6rem 0; border: 0; outline: 0; color: var(--text-main); background: transparent; font-size: 0.8rem; }
+.inventory-search-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.inventory-search { width: min(420px, 100%); }
+.inventory-search-count { color: var(--text-muted); font-size: 0.78rem; white-space: nowrap; }
 .supplier-table-wrap { max-height: 560px; }
 .supplier-table-wrap td, .supplier-table-wrap th { white-space: nowrap; }
 .table-actions { display: flex; gap: 0.35rem; }
@@ -372,6 +594,7 @@ tr:hover {
   .supplier-page-heading, .list-heading { align-items: flex-start; flex-direction: column; }
   .supplier-count { align-items: flex-start; }
   .supplier-search { width: 100%; }
+  .inventory-search-row { align-items: stretch; flex-direction: column; }
   .supplier-details { grid-template-columns: 1fr; }
 }
 
@@ -411,6 +634,108 @@ body.theme-dark .supplier-portal .portal-table-wrap td,
 body.theme-dark .technician-portal td { background: #101827 !important; border-color: rgba(255,255,255,.06) !important; color: #f8fafc !important; }
 body.theme-dark .tech-modal,
 body.theme-dark .technician-portal .card { background: #101827 !important; color: #f8fafc !important; border-color: rgba(255,255,255,.09) !important; }
+
+.repair-notice { margin-bottom: 1rem; border: 1px solid #a7f3d0; border-radius: .6rem; padding: .75rem 1rem; background: #ecfdf5; color: #047857; font-size: .85rem; }
+.repair-overview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin: 1.1rem 0 1.4rem; }
+.repair-overview-card { display: grid; grid-template-columns: 1fr auto; gap: .3rem .8rem; align-items: center; min-width: 0; padding: 1rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--bg-card); }
+.repair-overview-card > span { display: flex; align-items: center; gap: .45rem; color: var(--text-muted); font-size: .77rem; font-weight: 600; }
+.repair-overview-card > span svg { color: var(--primary); }
+.repair-overview-card > strong { grid-row: span 2; color: var(--text-main); font-size: 1.8rem; line-height: 1; }
+.repair-overview-card > small { color: var(--text-muted); font-size: .7rem; }
+.repair-overview-card.is-highlight { border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.06); }
+.repair-overview-card.is-highlight > span svg { color: #d97706; }
+.repair-list-tools { display: flex; flex-direction: column; align-items: flex-end; gap: .6rem; }
+.repair-filters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+.repair-filters .supplier-search { min-width: 230px; }
+.repair-filters .input { width: auto; min-width: 130px; max-width: 170px; }
+.repair-date-filter { min-width: 145px !important; }
+.repair-clear-filters { border: 0; padding: .5rem; background: transparent; color: var(--primary); cursor: pointer; font: inherit; font-size: .76rem; font-weight: 600; }
+.repair-view-switch { display: inline-flex; align-self: flex-end; gap: .2rem; border: 1px solid var(--border); border-radius: .5rem; padding: .2rem; background: var(--bg-card); }
+.repair-view-switch button { display: inline-flex; align-items: center; gap: .35rem; border: 0; border-radius: .35rem; padding: .4rem .6rem; background: transparent; color: var(--text-muted); cursor: pointer; font: inherit; font-size: .76rem; font-weight: 600; }
+.repair-view-switch button.active { background: rgba(59,130,246,.12); color: var(--primary); }
+.repair-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: .8rem; }
+.repair-board-column { min-width: 0; border: 1px solid var(--border); border-radius: .65rem; padding: .7rem; background: rgba(100,116,139,.035); }
+.repair-board-heading { display: flex; justify-content: space-between; align-items: center; gap: .7rem; padding: .3rem .15rem .75rem; }
+.repair-board-heading h5 { margin: 0; color: var(--text-main); font-size: .88rem; }
+.repair-board-heading p { margin: .2rem 0 0; color: var(--text-muted); font-size: .69rem; }
+.repair-board-heading > span { display: grid; min-width: 27px; height: 27px; place-items: center; border-radius: 50%; background: rgba(59,130,246,.12); color: var(--primary); font-size: .75rem; font-weight: 700; }
+.repair-board-cards { display: flex; max-height: 660px; flex-direction: column; gap: .6rem; overflow-y: auto; }
+.repair-board-empty { margin: 0; border: 1px dashed var(--border); border-radius: .55rem; padding: 1.2rem .7rem; color: var(--text-muted); font-size: .78rem; text-align: center; }
+.repair-job-card, .repair-mobile-job { min-width: 0; border: 1px solid var(--border); border-radius: .55rem; padding: .8rem; background: var(--bg-card); }
+.repair-job-card-top, .repair-mobile-job-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.repair-job-card-top > strong, .repair-mobile-job-heading > strong { color: var(--text-main); font-size: .76rem; }
+.priority-chip { border-radius: 999px; padding: .22rem .48rem; background: rgba(59,130,246,.1); color: var(--primary); font-size: .65rem; font-weight: 700; white-space: nowrap; }
+.priority-chip.priority-high { background: rgba(245,158,11,.12); color: #b45309; }
+.priority-chip.priority-urgent { background: rgba(239,68,68,.12); color: #b91c1c; }
+.priority-chip.priority-low { background: rgba(100,116,139,.12); color: #64748b; }
+.repair-job-card h6, .repair-mobile-job h5 { margin: .7rem 0 .2rem; color: var(--text-main); font-size: .88rem; }
+.repair-job-vehicle, .repair-mobile-job > p { margin: .2rem 0; color: var(--text-muted); font-size: .72rem; line-height: 1.45; }
+.repair-job-issue { display: -webkit-box; overflow: hidden; margin: .55rem 0; color: var(--text-main); font-size: .76rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.repair-job-card-meta { display: flex; flex-direction: column; gap: .35rem; margin-top: .7rem; color: var(--text-muted); font-size: .68rem; }
+.repair-job-card-meta span { display: flex; align-items: center; gap: .35rem; }
+.repair-unbilled-label { display: inline-flex; margin-top: .55rem; border-radius: .3rem; padding: .25rem .45rem; background: rgba(245,158,11,.12); color: #b45309; font-size: .66rem; font-weight: 700; }
+.repair-job-card-actions { display: flex; align-items: center; gap: .35rem; margin-top: .75rem; border-top: 1px solid var(--border); padding-top: .55rem; }
+.repair-job-card-actions button { display: inline-flex; align-items: center; justify-content: center; gap: .25rem; border: 0; border-radius: .35rem; padding: .38rem .45rem; background: transparent; color: var(--primary); cursor: pointer; font: inherit; font-size: .68rem; font-weight: 600; }
+.repair-job-card-actions button:hover { background: rgba(59,130,246,.09); }
+.repair-job-card-actions button.danger { margin-left: auto; color: #dc2626; }
+.repair-mobile-cards { display: none; }
+.repair-detail-overlay { position: fixed; z-index: 1000; inset: 0; display: flex; justify-content: flex-end; background: rgba(15,23,42,.48); }
+.repair-detail-panel { width: min(100%, 540px); height: 100%; overflow-y: auto; border-left: 1px solid var(--border); padding: 1.35rem; background: var(--bg-card); box-shadow: -20px 0 50px rgba(15,23,42,.18); }
+.repair-detail-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.repair-detail-heading p { margin: .1rem 0 .25rem; color: var(--text-muted); font-size: .72rem; }
+.repair-detail-heading h4 { margin: 0; color: var(--text-main); font-size: 1.25rem; }
+.repair-detail-badges { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1rem 0; }
+.repair-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+.repair-detail-grid > div { display: flex; min-width: 0; flex-direction: column; gap: .25rem; border: 1px solid var(--border); border-radius: .5rem; padding: .7rem; }
+.repair-detail-grid span { color: var(--text-muted); font-size: .68rem; }
+.repair-detail-grid strong { overflow-wrap: anywhere; color: var(--text-main); font-size: .78rem; }
+.repair-detail-notes { margin-top: 1rem; border: 1px solid var(--border); border-radius: .5rem; padding: .8rem; }
+.repair-detail-notes h5 { margin: 0 0 .4rem; color: var(--text-main); font-size: .78rem; }
+.repair-detail-notes p, .repair-detail-notes li { margin: 0; color: var(--text-muted); font-size: .76rem; line-height: 1.55; white-space: pre-wrap; }
+.repair-detail-notes ul { display: grid; gap: .3rem; margin: 0; padding-left: 1.1rem; }
+.repair-detail-actions { display: flex; justify-content: flex-end; margin-top: 1.2rem; }
+.customer-vehicle-fields { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 80px; }
+body.theme-dark .repair-notice { border-color: rgba(52,211,153,.25); background: rgba(16,185,129,.1); color: #6ee7b7; }
+body.theme-dark .priority-chip.priority-high { color: #fbbf24; }
+body.theme-dark .priority-chip.priority-urgent { color: #fca5a5; }
+body.theme-dark .priority-chip.priority-low { color: #94a3b8; }
+body.theme-dark .repair-unbilled-label { color: #fcd34d; }
+@media (max-width: 1000px) {
+  .repair-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .repair-list-tools { align-items: stretch; }
+  .repair-filters { justify-content: flex-start; }
+  .repair-view-switch { align-self: flex-start; }
+  .repair-board { grid-template-columns: 1fr; }
+  .repair-board-cards { max-height: none; }
+}
+@media (max-width: 700px) {
+  .repair-overview { gap: .55rem; }
+  .repair-overview-card { padding: .75rem; }
+  .repair-overview-card > span { font-size: .7rem; }
+  .repair-overview-card > strong { font-size: 1.45rem; }
+  .repair-filters { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .repair-filters .supplier-search, .repair-filters .input { width: 100%; min-width: 0; max-width: none; }
+  .repair-filters .supplier-search, .repair-filters .repair-date-filter { grid-column: 1 / -1; }
+  .repair-list-tools { width: 100%; }
+  .repair-module > section.card > .table-container { display: none; }
+  .repair-mobile-cards { display: grid; gap: .65rem; }
+  .repair-mobile-job-meta { display: flex; justify-content: space-between; gap: .5rem; margin-top: .55rem; color: var(--text-muted); font-size: .69rem; }
+  .repair-detail-panel { padding: 1rem; }
+}
+@media (max-width: 420px) {
+  .repair-overview-card { grid-template-columns: 1fr auto; }
+  .repair-overview-card > span { gap: .25rem; font-size: .64rem; }
+  .repair-overview-card > small { font-size: .62rem; }
+  .repair-detail-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .app-container > aside { width: 64px !important; padding: 1.25rem .35rem !important; }
+  .app-container > aside h1 { display: none; }
+  .app-container > aside nav { gap: .4rem !important; }
+  .app-container > aside nav a { justify-content: center; padding: .75rem .25rem !important; font-size: 0; }
+  .app-container > aside nav a svg { flex: 0 0 auto; }
+  .app-container .admin-main { margin-left: 64px !important; padding: .85rem !important; }
+}
 body.theme-dark .customer-portal { background: #080d18 !important; color: #f8fafc !important; }
 body.theme-dark .customer-portal > header { background: #0c1322 !important; border-color: rgba(255,255,255,.08) !important; box-shadow: 0 1px 10px rgba(0,0,0,.25); }
 body.theme-dark .customer-portal > header strong,
@@ -517,17 +842,6 @@ body:not(.theme-dark) .technician-portal .tech-stats div { color: #2563eb !impor
 body:not(.theme-dark) .technician-portal .tech-stats span { color: #475569 !important; }
 body:not(.theme-dark) .technician-portal .tech-stats strong { color: #172033 !important; }
 body:not(.theme-dark) .technician-portal .tech-stats svg { color: #2563eb !important; }
-body.theme-dark .home-page,
-body.theme-dark .home-page * { color: #f8fafc !important; }
-body.theme-dark .home-page a,
-body.theme-dark .home-page button { color: #93c5fd !important; }
-body.theme-dark .home-page svg { color: #60a5fa !important; }
-body:not(.theme-dark) .home-page nav { background: rgba(255,255,255,.94) !important; border-bottom: 1px solid #dce3ed !important; box-shadow: 0 4px 18px rgba(30,55,90,.08); }
-body:not(.theme-dark) .home-page nav span { color: #172033 !important; }
-body:not(.theme-dark) .home-page nav span + span { color: #64748b !important; }
-body:not(.theme-dark) .home-page nav a:first-child { color: #1d4ed8 !important; background: #ffffff !important; border-color: #cbd5e1 !important; }
-body:not(.theme-dark) .home-page nav a:last-child { color: #ffffff !important; }
-
 body:not(.theme-dark) .technician-portal .status-badge,
 body:not(.theme-dark) .technician-portal .status-badge.pending,
 body:not(.theme-dark) .technician-portal .status-badge.awaiting-dispatch,
@@ -561,6 +875,24 @@ body:not(.theme-dark) .customer-portal .customer-search input::placeholder { col
 .dashboard-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.35rem; }
 .dashboard-heading h3 { margin-top: .25rem; font-size: 1.8rem; }
 .dashboard-date { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem .7rem; border: 1px solid var(--border); border-radius: 99px; color: var(--text-muted); font-size: .75rem; }
+.dashboard-toolbar { display: flex; align-items: center; gap: .6rem; }
+.dashboard-refresh { display: inline-flex; align-items: center; gap: .4rem; }
+.dashboard-refresh:disabled { opacity: .65; cursor: wait; }
+.dashboard-spinning { animation: dashboard-spin .8s linear infinite; }
+@keyframes dashboard-spin { to { transform: rotate(360deg); } }
+.dashboard-error { display: flex; align-items: center; gap: .65rem; padding: .8rem 1rem; margin-bottom: 1rem; border: 1px solid rgba(239,68,68,.3); border-radius: .6rem; background: rgba(239,68,68,.08); color: var(--danger); font-size: .82rem; }
+.dashboard-error span { flex: 1; }
+.dashboard-loading { margin: -.5rem 0 1rem; color: var(--text-muted); font-size: .8rem; }
+.dashboard-kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; margin-bottom: 1rem; }
+.dashboard-kpi { min-width: 0; padding: 1rem 1.1rem; }
+.dashboard-kpi > div { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: var(--text-muted); font-size: .76rem; font-weight: 600; }
+.dashboard-kpi > div svg { color: var(--primary); }
+.dashboard-kpi > strong { display: block; margin-top: .75rem; color: var(--text-main); font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.04em; }
+.dashboard-kpi > small { display: flex; align-items: center; gap: .25rem; margin-top: .3rem; color: var(--text-muted); font-size: .7rem; }
+.dashboard-kpi-link { display: block; color: inherit; text-decoration: none; transition: transform .18s ease, border-color .18s ease; }
+.dashboard-kpi-link:hover { transform: translateY(-2px); border-color: var(--primary); }
+.dashboard-kpi.needs-attention { border-left: 3px solid var(--danger); }
+.dashboard-kpi.needs-attention > div svg, .dashboard-kpi.needs-attention > strong { color: var(--danger); }
 .kpi-icon { display: grid; place-items: center; padding: .6rem; border-radius: .65rem; }
 .kpi-icon-blue { background: rgba(59,130,246,.12); color: var(--primary); }
 .kpi-icon-green { background: rgba(16,185,129,.12); color: var(--success); }
@@ -570,12 +902,22 @@ body:not(.theme-dark) .customer-portal .customer-search input::placeholder { col
 .dashboard-chart-card { min-width: 0; }
 .chart-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
 .chart-heading h4 { margin-top: .3rem; }
+.dashboard-revenue-heading { align-items: center; }
+.dashboard-period-select .input { min-width: 145px; padding: .5rem .7rem; }
+.dashboard-revenue-summary { display: flex; align-items: baseline; gap: .65rem; margin-bottom: .2rem; }
+.dashboard-revenue-summary strong { font-size: 1.25rem; }
+.dashboard-revenue-summary span { color: var(--text-muted); font-size: .72rem; }
+.dashboard-revenue-summary .positive { color: var(--success); }
+.dashboard-revenue-summary .negative { color: var(--danger); }
 .chart-total { color: var(--success); font-size: .9rem; font-weight: 700; }
 .sales-chart { display: flex; align-items: end; gap: .8rem; height: 170px; padding: 1rem .5rem 0; border-bottom: 1px solid var(--border); }
+.sales-chart-compact { gap: .45rem; }
 .sales-bar-wrap { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: end; gap: .45rem; height: 100%; min-width: 0; }
 .sales-bar { width: min(34px, 70%); min-height: 8px; border-radius: .4rem .4rem .15rem .15rem; background: linear-gradient(180deg, #60a5fa, #2563eb); box-shadow: 0 5px 12px rgba(37,99,235,.2); transition: height .35s ease, transform .2s ease; }
 .sales-bar:hover { transform: translateY(-3px); }
 .sales-bar-wrap span { color: var(--text-muted); font-size: .68rem; white-space: nowrap; }
+.sales-chart-compact .sales-bar-wrap span { font-size: .58rem; }
+.dashboard-chart-empty { padding: .5rem 0; color: var(--text-muted); font-size: .8rem; }
 .workload-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
 .workload-row > div:first-child { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .45rem; font-size: .8rem; }
 .workload-row strong { color: var(--text-muted); font-size: .75rem; }
@@ -586,6 +928,50 @@ body:not(.theme-dark) .customer-portal .customer-search input::placeholder { col
 .stock-health strong { color: var(--success); }
 @media (max-width: 850px) { .dashboard-chart-grid { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .admin-main { margin-left: 0 !important; padding: 1rem !important; }.admin-topbar { align-items: flex-start; gap: .75rem; }.topbar-actions { flex-wrap: wrap; justify-content: flex-end; }.topbar-user { display: none; }.dashboard-heading { flex-direction: column; }.dashboard-heading h3 { font-size: 1.5rem; } }
+.dashboard-alert-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.dashboard-alert-card { min-width: 0; }
+.dashboard-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.dashboard-section-heading h4 { margin-top: .25rem; }
+.dashboard-section-heading .page-subtitle { margin-top: .25rem; }
+.dashboard-alert-list { display: flex; flex-direction: column; }
+.dashboard-alert-row { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .75rem .15rem; border-top: 1px solid var(--border); }
+.dashboard-alert-row > span:first-child { display: flex; flex-direction: column; min-width: 0; gap: .2rem; }
+.dashboard-alert-row strong { overflow: hidden; color: var(--text-main); font-size: .8rem; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-alert-row small { color: var(--text-muted); font-size: .7rem; }
+.dashboard-stock-quantity { flex: 0 0 auto; color: var(--danger); font-size: .76rem; font-weight: 700; text-align: right; }
+.dashboard-stock-quantity small { display: block; margin-top: .15rem; font-weight: 400; }
+.dashboard-job-alert { color: inherit; text-decoration: none; }
+.dashboard-job-alert:hover strong { color: var(--primary); }
+.dashboard-job-alert > span:first-child { flex: 1; }
+.dashboard-job-alert > span:first-child small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-alert-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .3rem; }
+.dashboard-alert-tags i { padding: .2rem .4rem; border-radius: 99px; font-size: .62rem; font-style: normal; white-space: nowrap; }
+.dashboard-alert-tags .urgent, .dashboard-alert-tags .overdue { background: rgba(239,68,68,.12); color: var(--danger); }
+.dashboard-alert-tags .high { background: rgba(245,158,11,.14); color: #d97706; }
+.dashboard-alert-tags .unassigned { background: rgba(59,130,246,.12); color: var(--primary); }
+.dashboard-clear-state { display: flex; align-items: center; gap: .45rem; padding: .75rem 0; color: var(--success); font-size: .8rem; }
+.dashboard-more-alerts { padding-top: .6rem; color: var(--text-muted); font-size: .72rem; }
+.dashboard-more-alerts a { color: var(--primary); }
+.dashboard-quick-actions { margin-bottom: 1rem; }
+.dashboard-action-links { display: flex; flex-wrap: wrap; gap: .6rem; }
+.dashboard-action-links .btn, .dashboard-section-heading .btn { display: inline-flex; align-items: center; gap: .4rem; text-decoration: none; }
+.dashboard-table-empty { padding: .5rem 0; color: var(--text-muted); font-size: .82rem; }
+.dashboard-repair-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 950px) { .dashboard-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.dashboard-alert-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .dashboard-toolbar { flex-wrap: wrap; }
+  .dashboard-kpi-grid { grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .dashboard-kpi { padding: .8rem; }
+  .dashboard-kpi > strong { font-size: 1.3rem; }
+  .dashboard-date { font-size: .68rem; }
+  .dashboard-error { align-items: flex-start; flex-wrap: wrap; }
+  .dashboard-revenue-heading { align-items: flex-start; flex-direction: column; }
+  .dashboard-alert-row { align-items: flex-start; }
+  .dashboard-job-alert { flex-direction: column; }
+  .dashboard-alert-tags { justify-content: flex-start; }
+  .dashboard-repair-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-action-links .btn { flex: 1 1 calc(50% - .6rem); justify-content: center; }
+}
 
 .theme-toggle {
   display: flex;
@@ -629,8 +1015,7 @@ body.theme-dark .badge-success { background: rgba(16,185,129,.2); color: #6ee7b7
 body.theme-dark .customer-portal,
 body.theme-dark .technician-portal,
 body.theme-dark .supplier-portal,
-body.theme-dark .login-page,
-body.theme-dark .home-page { background: #080d18 !important; color: #f8fafc !important; }
+body.theme-dark .login-page { background: #080d18 !important; color: #f8fafc !important; }
 body.theme-dark .customer-portal header,
 body.theme-dark .technician-header,
 body.theme-dark .supplier-portal-header { background: #0c1322 !important; border-color: rgba(255,255,255,.08) !important; color: #f8fafc !important; }
@@ -671,10 +1056,8 @@ body.theme-dark .product-results { background: #162033 !important; }
 .customer-portal,
 .technician-portal,
 .supplier-portal,
-.login-page,
-.home-page { background: #f4f7fb !important; color: #172033 !important; }
+.login-page { background: #f4f7fb !important; color: #172033 !important; }
 .customer-portal *,
-.home-page *,
 .login-page h1,
 .login-page h2,
 .login-page h3,
@@ -686,18 +1069,10 @@ body.theme-dark .product-results { background: #162033 !important; }
 .customer-portal .price,
 .customer-portal .partIcon,
 .customer-portal .primaryButton,
-.home-page a,
-.home-page button,
-.home-page svg,
 .login-page button[type="submit"],
 .login-page .login-options button { color: #2563eb !important; }
 .customer-portal .primaryButton,
-.home-page button[style*="background"],
-.home-page a[style*="background"],
 .login-page button[type="submit"] { color: #ffffff !important; }
-.home-page a.explore-services-button[style*="background"] { color: #000000 !important; border: 2px solid #000000 !important; }
-body.theme-dark .home-page .explore-services-button,
-body.theme-dark .home-page .explore-services-button svg { color: #000000 !important; }
 .customer-portal header,
 .technician-header,
 .supplier-portal-header { background: #ffffff !important; border-color: #dce3ed !important; color: #172033 !important; box-shadow: 0 1px 8px rgba(30,55,90,.06); }
