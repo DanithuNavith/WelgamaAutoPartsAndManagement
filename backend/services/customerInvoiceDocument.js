@@ -91,7 +91,7 @@ const createCustomerInvoicePdf = data => new Promise((resolve, reject) => {
 
   const pageWidth = document.page.width - document.page.margins.left - document.page.margins.right;
   const left = document.page.margins.left;
-  const logoPath = path.resolve(__dirname, '../../frontend/public/welgama-logo.png');
+  const logoPath = path.resolve(__dirname, '../public/welgama-logo.png');
   const columns = [pageWidth * 0.05, pageWidth * 0.37, pageWidth * 0.07, pageWidth * 0.25, pageWidth * 0.26];
   const tableHeaders = ['#', 'DESCRIPTION', 'QTY', 'UNIT PRICE', 'AMOUNT'];
   const labelColor = '#f0f2f5';
