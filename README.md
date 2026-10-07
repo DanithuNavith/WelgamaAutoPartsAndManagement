@@ -17,13 +17,12 @@ Set `MONGO_URI` in the backend environment to the MongoDB Atlas connection strin
 
 ## Deploying on Hostinger
 
-The React website and Express API are separate deployments. The Node.js application configured with `backend/index.js` runs the API; it does not build or display the React website.
+The React website and Express API are served together by the Node.js application, so the main domain displays the website while API requests use the same domain's `/api` paths.
 
-1. Deploy the backend as a Hostinger Node.js application with application root `backend` and startup file `index.js`. Add `MONGO_URI` (or `MONGODB_URI`) in the app's environment variables and allow Hostinger's outbound IP in MongoDB Atlas Network Access. The backend listens on Hostinger's `PORT`; `/api/health` reports whether its MongoDB connection is ready.
-2. Create `frontend/.env.production` from `frontend/.env.production.example`. Replace the example URL with the actual HTTPS API URL, including `/api` (for example, `https://api.yourdomain.com/api`). This file is ignored by Git.
-3. From the repository root, build the website with `npm.cmd --prefix frontend ci` followed by `npm.cmd --prefix frontend run build` on Windows, or the equivalent `npm --prefix frontend ci` and `npm --prefix frontend run build` on macOS/Linux.
-4. Upload the **contents** of `frontend/dist` to the main domain's `public_html`. The included `.htaccess` provides React Router fallback on Hostinger's Apache/LiteSpeed static hosting.
-5. Open the main website and the API's `/api/health` endpoint to verify both deployments. If the frontend was built before setting `VITE_API_BASE_URL`, create a new build after correcting it and upload the refreshed `dist` contents.
+1. In the frontend folder, install dependencies and build the site with `npm.cmd ci` and `npm.cmd run build` on Windows, or `npm ci` and `npm run build` on macOS/Linux. The build writes the static website into `backend/public`.
+2. Deploy the backend as a Hostinger Node.js application with application root `backend` and startup file `index.js`. Ensure the generated `backend/public` directory is included in the deployed source.
+3. Add `MONGO_URI` (or `MONGODB_URI`) in the app's environment variables and allow Hostinger's outbound IP in MongoDB Atlas Network Access. The backend listens on Hostinger's `PORT`; `/api/health` reports whether its MongoDB connection is ready.
+4. Point the main domain to this Node.js application and enable HTTPS. Open the main domain to see the site; open `/api/health` to check the API/database status.
 
 ### Send invoices with Gmail
 
