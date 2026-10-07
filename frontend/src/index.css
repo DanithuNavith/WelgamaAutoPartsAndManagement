@@ -14,10 +14,12 @@
 .billing-select-grid label { display: flex; flex-direction: column; gap: .4rem; color: var(--text-muted); font-size: .78rem; font-weight: 600; }
 .section-total { display: flex; justify-content: flex-end; align-items: center; gap: 1rem; padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: .82rem; }
 .section-total strong { color: #34d399; font-size: 1.1rem; }
-.cost-detail { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: .75rem; }
+.cost-detail { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 .cost-detail div { padding: .8rem; border: 1px solid var(--border); border-radius: .5rem; background: rgba(15,23,42,.35); }
 .cost-detail span, .summary-lines span { display: block; color: var(--text-muted); font-size: .72rem; }
 .cost-detail strong { display: block; margin-top: .35rem; font-size: .85rem; }
+.repair-discount-field { display: flex; flex-direction: column; gap: .4rem; color: var(--text-muted); font-size: .78rem; font-weight: 600; }
+.repair-discount-field .input { width: 100%; }
 .summary-lines > div { display: flex; justify-content: space-between; gap: 1rem; padding: .6rem 0; color: var(--text-muted); }
 .summary-lines strong { color: var(--text-main); }
 .summary-total { border-top: 1px solid rgba(52,211,153,.5); margin-top: .4rem; padding-top: .9rem !important; color: var(--text-main) !important; }

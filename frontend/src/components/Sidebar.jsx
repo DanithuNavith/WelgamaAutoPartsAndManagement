@@ -30,8 +30,8 @@ const Sidebar = () => {
       <h1 className="mb-6" style={{ textAlign: 'center' }}>
         <BrandLogo width={125} style={{ height: 'auto', maxWidth: '100%' }} />
       </h1>
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {navItems.map((item) => (
+      <nav style={{ display: 'flex', flexDirection: 'column' }}>
+        {navItems.map((item, index) => (
           <NavLink
             key={item.name}
             to={item.path}
@@ -40,7 +40,8 @@ const Sidebar = () => {
               alignItems: 'center',
               gap: '0.75rem',
               padding: '0.75rem 1rem',
-              borderRadius: '0.5rem',
+              borderRadius: 0,
+              borderBottom: index < navItems.length - 1 ? '1px solid var(--border)' : 'none',
               color: isActive ? '#fff' : 'var(--text-muted)',
               background: isActive ? 'var(--primary)' : 'transparent',
               textDecoration: 'none',

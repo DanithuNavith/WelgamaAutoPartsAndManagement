@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BadgeDollarSign, BarChart3, Check, ClipboardList, FileText, History, Mail, Package, Plus, Printer, Search, ShoppingCart, Trash2, User, Wrench, X } from 'lucide-react';
+import { BadgeDollarSign, BarChart3, Check, ClipboardList, FileText, History, Mail, Package, Percent, Plus, Printer, Search, ShoppingCart, Trash2, User, Wrench, X } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
 const API = 'http://localhost:5000/api';
@@ -485,9 +485,15 @@ const Sales = () => {
               <input required className={`input${technicianCostError ? ' input-validation-error' : ''}`} aria-invalid={Boolean(technicianCostError)} aria-describedby={technicianCostError ? 'technician-cost-error' : undefined} min="0" step="0.01" type="number" value={manualTechnicianCost} onChange={event => { setManualTechnicianCost(event.target.value); setError(''); }} placeholder="Enter technician cost" />
               {technicianCostError && <small id="technician-cost-error" className="field-validation-error">{technicianCostError}</small>}
             </label>
-            <label><span>Discount (Rs.)</span><input className="input" min="0" max={repairSubtotal} step="0.01" type="number" value={repairDiscount} onChange={event => setRepairDiscount(event.target.value)} placeholder="0.00" /></label>
           </div>
           <div className="section-total"><span>Total Technician Cost</span><strong>{technicianCostError ? '—' : money(technicianCost)}</strong></div>
+        </section>
+        <section className="card cost-card discount-card">
+          <div className="section-heading"><span className="section-icon"><Percent size={18} /></span><div><h4>Discount</h4><p>Apply a discount to the repair bill.</p></div></div>
+          <label className="repair-discount-field">
+            <span>Discount (Rs.)</span>
+            <input className="input" min="0" max={repairSubtotal} step="0.01" type="number" value={repairDiscount} onChange={event => setRepairDiscount(event.target.value)} placeholder="0.00" />
+          </label>
         </section>
         <section className="card summary-card">
           <div className="section-heading"><span className="section-icon"><BadgeDollarSign size={18} /></span><div><h4>Final Summary</h4><p>Repair bill total</p></div></div>

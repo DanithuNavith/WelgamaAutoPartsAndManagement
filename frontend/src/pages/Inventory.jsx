@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getProducts, createProduct, deleteProduct, updateProduct } from '../services/api';
 import { AlertCircle, BellRing, Edit, Plus, Search, Trash2, X } from 'lucide-react';
 import StockAlerts from './StockAlerts';
+import InventoryChatbot from '../components/InventoryChatbot';
 import { validateInventoryProduct } from '../utils/inventoryValidation';
 
 const Inventory = () => {
@@ -339,6 +340,15 @@ const Inventory = () => {
       <section id="stock-alerts-panel" role="tabpanel" aria-labelledby="stock-alerts-tab" hidden={activeTab !== 'alerts'}>
         <StockAlerts active={activeTab === 'alerts'} onCountChange={setAlertCount} />
       </section>
+      <InventoryChatbot
+        products={products}
+        onProductSaved={savedProduct => setProducts(current => {
+          const exists = current.some(product => product._id === savedProduct._id);
+          return exists
+            ? current.map(product => product._id === savedProduct._id ? savedProduct : product)
+            : [savedProduct, ...current];
+        })}
+      />
     </div>
   );
 };
