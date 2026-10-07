@@ -11,6 +11,10 @@ The holiday calendar is provided by the `date-holidays` backend dependency. Upda
 
 When an owner creates or changes a bill for a completed repair in **Sales & Billing**, the system emails the customer a PDF copy of the invoice. The email address on the customer profile is used first, with the job card email as a fallback. A failed delivery is shown on the invoice with a retry action.
 
+## Production MongoDB connection
+
+Set `MONGO_URI` in the backend environment to the MongoDB Atlas connection string. The backend also accepts `MONGODB_URI` for hosting integrations that provide that variable name. Include a database name such as `welgama-auto` in the URI path, and URL-encode special characters in the database user's password. Set the variable in Hostinger's Node.js app settings for deployment; do not commit a real connection string or database password.
+
 ### Send invoices with Gmail
 
 1. Use the Gmail account that should send invoices. In that Google Account, enable **2-Step Verification**, then create an **App password** under **Security → 2-Step Verification → App passwords**. Use the generated app password, not your normal Gmail password.

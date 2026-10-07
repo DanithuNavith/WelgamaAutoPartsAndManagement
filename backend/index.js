@@ -64,7 +64,9 @@ const ensureLoginAccounts = async () => {
 };
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/welgama-auto')
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/welgama-auto';
+
+mongoose.connect(mongoUri)
   .then(() => {
     console.log('Connected to MongoDB');
     return ensureLoginAccounts();
