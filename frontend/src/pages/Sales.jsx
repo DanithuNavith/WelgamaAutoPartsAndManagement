@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { BadgeDollarSign, BarChart3, Check, ClipboardList, FileText, History, Mail, Package, Percent, Plus, Printer, Search, ShoppingCart, Trash2, User, Wrench, X } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API = 'http://localhost:5000/api';
+const API = API_BASE_URL;
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
 const money = value => `Rs. ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const getTechnicianCostError = value => {

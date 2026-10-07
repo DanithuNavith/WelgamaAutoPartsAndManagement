@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CalendarDays, Car, ClipboardList, CircleDollarSign, Edit, Eye, LayoutGrid, List, Plus, Search, Trash2, Wrench, X } from 'lucide-react';
 import { validateJobForm } from '../utils/repairFormValidation';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API = 'http://localhost:5000/api';
+const API = API_BASE_URL;
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
 const blankJob = { customer: '', vehicleIndex: '', issueDescription: '', appointmentDate: '', appointmentTime: '', priority: 'Medium', repairNotes: '', technician: '' };
 const emptyAvailability = { loading: false, holiday: null, availableTimes: [], error: '' };

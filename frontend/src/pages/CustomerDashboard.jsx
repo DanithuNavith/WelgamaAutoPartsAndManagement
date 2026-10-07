@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Calendar, Car, ChevronLeft, ChevronRight, Filter, LogOut, Package, Search, User, Wrench, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 const emptyRepair = { vehicleModel: '', licensePlate: '', issueDescription: '', appointmentDate: '', appointmentTime: '', technician: '' };
 const emptyAvailability = { loading: false, holiday: null, availableTimes: [], error: '' };
 

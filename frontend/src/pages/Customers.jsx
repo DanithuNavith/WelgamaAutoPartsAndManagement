@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Car, Edit, Plus, Trash2, X } from 'lucide-react';
 import { validateCustomerForm } from '../utils/repairFormValidation';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
 const blankCustomer = { name: '', phone: '', email: '', address: '', vehicles: [] };
 const blankVehicle = { licensePlate: '', make: '', model: '', year: '' };

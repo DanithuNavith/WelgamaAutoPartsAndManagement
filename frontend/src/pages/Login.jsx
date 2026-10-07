@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { User, ShieldCheck, Wrench, Building2, Eye, EyeOff, ArrowLeft, Settings, Loader2 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 
 const roles = [
   { key: 'Owner', label: 'Owner', icon: ShieldCheck, color: '#8b5cf6', desc: 'Full system access & management' },

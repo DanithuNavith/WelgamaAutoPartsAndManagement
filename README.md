@@ -15,6 +15,16 @@ When an owner creates or changes a bill for a completed repair in **Sales & Bill
 
 Set `MONGO_URI` in the backend environment to the MongoDB Atlas connection string. The backend also accepts `MONGODB_URI` for hosting integrations that provide that variable name. Include a database name such as `welgama-auto` in the URI path, and URL-encode special characters in the database user's password. Set the variable in Hostinger's Node.js app settings for deployment; do not commit a real connection string or database password.
 
+## Deploying on Hostinger
+
+The React website and Express API are separate deployments. The Node.js application configured with `backend/index.js` runs the API; it does not build or display the React website.
+
+1. Deploy the backend as a Hostinger Node.js application with application root `backend` and startup file `index.js`. Add `MONGO_URI` (or `MONGODB_URI`) in the app's environment variables and allow Hostinger's outbound IP in MongoDB Atlas Network Access. The backend listens on Hostinger's `PORT`; `/api/health` reports whether its MongoDB connection is ready.
+2. Create `frontend/.env.production` from `frontend/.env.production.example`. Replace the example URL with the actual HTTPS API URL, including `/api` (for example, `https://api.yourdomain.com/api`). This file is ignored by Git.
+3. From the repository root, build the website with `npm.cmd --prefix frontend ci` followed by `npm.cmd --prefix frontend run build` on Windows, or the equivalent `npm --prefix frontend ci` and `npm --prefix frontend run build` on macOS/Linux.
+4. Upload the **contents** of `frontend/dist` to the main domain's `public_html`. The included `.htaccess` provides React Router fallback on Hostinger's Apache/LiteSpeed static hosting.
+5. Open the main website and the API's `/api/health` endpoint to verify both deployments. If the frontend was built before setting `VITE_API_BASE_URL`, create a new build after correcting it and upload the refreshed `dist` contents.
+
 ### Send invoices with Gmail
 
 1. Use the Gmail account that should send invoices. In that Google Account, enable **2-Step Verification**, then create an **App password** under **Security → 2-Step Verification → App passwords**. Use the generated app password, not your normal Gmail password.

@@ -2,8 +2,8 @@
 import { CheckCircle, ClipboardList, LogOut, Package, Truck, UserRound, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 const statusClass = value => value.toLowerCase().replaceAll(' ', '-');
 const rejectionOptions = ['Out of stock', 'Price mismatch', 'Cannot deliver', 'Wrong item'];
 const isValidPhone = value => {

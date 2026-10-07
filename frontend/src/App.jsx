@@ -15,6 +15,7 @@ import SupplierDashboard from './pages/SupplierDashboard';
 import PurchaseOrders from './pages/PurchaseOrders';
 import BrandLogo from './components/BrandLogo';
 import { Moon, Sun } from 'lucide-react';
+import { API_BASE_URL } from './services/apiBase';
 
 const ThemeSwitch = () => {
   const [isDark, setIsDark] = useState(() => document.body.classList.contains('theme-dark'));
@@ -48,7 +49,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
     if (!token) return undefined;
 
     let cancelled = false;
-    fetch('http://localhost:5000/api/auth/me', {
+    fetch(`${API_BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(async response => {
       if (cancelled) return;

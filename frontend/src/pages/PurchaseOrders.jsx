@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ClipboardList, Plus, Search, Trash2, X } from 'lucide-react';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 const emptyItem = { product: null, productName: '', category: '', quantity: 1, unitPrice: '' };
 const statuses = ['Pending', 'Ordered', 'Partially Received', 'Received', 'Rejected'];
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });

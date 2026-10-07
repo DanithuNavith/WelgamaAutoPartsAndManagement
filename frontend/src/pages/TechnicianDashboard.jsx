@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle, ClipboardList, Clock, LogOut, Package, User, Wrench } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API = 'http://localhost:5000/api';
+const API = API_BASE_URL;
 const auth = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`

@@ -24,6 +24,18 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+app.get('/', (req, res) => {
+  res.json({ message: 'Welgama Auto Parts API is running. Deploy the frontend separately to display the website.' });
+});
+
+app.get('/api/health', (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+  res.status(connected ? 200 : 503).json({
+    status: connected ? 'ok' : 'unavailable',
+    database: connected ? 'connected' : 'disconnected'
+  });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -64,18 +76,26 @@ const ensureLoginAccounts = async () => {
 };
 
 // Connect to MongoDB
-const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/welgama-auto';
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI
+  || (process.env.NODE_ENV === 'production' ? null : 'mongodb://127.0.0.1:27017/welgama-auto');
 
-mongoose.connect(mongoUri)
-  .then(() => {
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+const connectToMongo = async () => {
+  if (!mongoUri) {
+    console.error('MongoDB URI is missing. Set MONGO_URI or MONGODB_URI in the backend environment.');
+    return;
+  }
+
+  try {
+    await mongoose.connect(mongoUri);
     console.log('Connected to MongoDB');
-    return ensureLoginAccounts();
-  })
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
+    await ensureLoginAccounts();
+  } catch (err) {
     console.error('Failed to connect to MongoDB', err);
-  });
+  }
+};
+
+connectToMongo();

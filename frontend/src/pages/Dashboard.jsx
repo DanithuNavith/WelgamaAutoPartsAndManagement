@@ -3,8 +3,8 @@ import {
   AlertCircle, ArrowRight, BarChart3, Building2, CheckCircle2, ClipboardList,
   Clock3, Package, Plus, RefreshCw, ShoppingCart, TrendingUp, Users, Wrench
 } from 'lucide-react';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 const SALES_PERIODS = {
   '7d': { label: 'Last 7 days', days: 7 },
   '30d': { label: 'Last 30 days', days: 30 },

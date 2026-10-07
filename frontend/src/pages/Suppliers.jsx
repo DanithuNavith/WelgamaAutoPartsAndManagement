@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Building2, Eye, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { API_BASE_URL } from '../services/apiBase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
 const emptySupplier = { name: '', contactPerson: '', phone: '', email: '', address: '', password: '' };
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
 
