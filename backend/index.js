@@ -32,6 +32,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.use('/api', (req, res, next) => {
+  if (mongoose.connection.readyState === 1) return next();
+  return res.status(503).json({ message: 'Database is temporarily unavailable. Please try again shortly.' });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -92,6 +97,9 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+let loginAccountsInitialized = false;
+let mongoRetryTimer;
+
 const connectToMongo = async () => {
   if (!mongoUri) {
     console.error('MongoDB URI is missing. Set MONGO_URI or MONGODB_URI in the backend environment.');
@@ -99,12 +107,21 @@ const connectToMongo = async () => {
   }
 
   try {
-    await mongoose.connect(mongoUri);
-    console.log('Connected to MongoDB');
-    await ensureLoginAccounts();
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 10000 });
+      console.log('Connected to MongoDB');
+    }
+    if (!loginAccountsInitialized) {
+      await ensureLoginAccounts();
+      loginAccountsInitialized = true;
+    }
   } catch (err) {
     console.error('Failed to connect to MongoDB', err);
+    mongoRetryTimer = setTimeout(connectToMongo, 10000);
   }
 };
 
-connectToMongo();
+connectToMongo().catch(err => {
+  console.error('MongoDB initialization failed', err);
+  mongoRetryTimer = setTimeout(connectToMongo, 10000);
+});
