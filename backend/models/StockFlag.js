@@ -11,7 +11,8 @@ const stockFlagSchema = new mongoose.Schema({
   pred_daily_demand: { type: Number, required: true },
   flag: { type: String, required: true },
   suggested_order_qty: { type: Number, required: true },
-  scoredAt: { type: Date, required: true }
+  scoredAt: { type: Date, required: true },
+  historyDays: { type: Number, min: 0 }
 }, { timestamps: false, versionKey: false });
 
 module.exports = mongoose.model('StockFlag', stockFlagSchema, 'stock_flags');

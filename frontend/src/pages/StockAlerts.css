@@ -79,7 +79,7 @@
 .stock-gauge-threshold { position: absolute; top: -4px; width: 2px; height: 20px; background: var(--text-main); box-shadow: 0 0 0 2px var(--bg-card); }
 .stock-gauge-labels { display: flex; justify-content: space-between; gap: .75rem; margin-top: .6rem; color: var(--text-muted); font-size: .68rem; }
 .stock-gauge-labels strong { color: var(--text-main); }
-.stock-card-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; padding: 1.1rem 0; margin-top: 1.2rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.stock-card-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; padding: 1.1rem 0; margin-top: 1.2rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .stock-card-metrics > div { display: flex; flex-direction: column; gap: .4rem; padding: .15rem .7rem; border-right: 1px solid var(--border); }
 .stock-card-metrics > div:first-child { padding-left: 0; }
 .stock-card-metrics > div:last-child { border: 0; }

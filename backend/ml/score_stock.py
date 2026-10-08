@@ -141,11 +141,17 @@ def main():
                 )
             history_days = (today - min(date for date, _ in sales)).days + 1
             if history_days < 56:
-                raise RuntimeError(
-                    f"Only {history_days} days of demand history are available; "
-                    "the model requires at least 56 days. Use --mock-csv until enough real history is logged."
+                print(
+                    f"Warning: scoring the trained model with {history_days} days of available demand history; "
+                    "forecast confidence may improve as more history is recorded.",
+                    file=sys.stderr,
                 )
-            dates = pd.date_range(start=start.date(), end=(end - timedelta(days=1)).date(), freq="D")
+            first_demand_date = min(date for date, _ in sales)
+            dates = pd.date_range(
+                start=max(start.date(), first_demand_date),
+                end=(end - timedelta(days=1)).date(),
+                freq="D",
+            )
             daily_rows = [
                 {
                     "date": date,
@@ -181,9 +187,14 @@ def main():
             for document in documents:
                 document["product_id"] = str(document["product_id"])
                 document["scoredAt"] = scored_at
+                document["historyDays"] = history_days
 
         replace_flags(database, documents)
-        print(f"Replaced {len(documents)} stock flags; scoredAt={scored_at.isoformat()}")
+        print(
+            f"Replaced {len(documents)} stock scores using "
+            f"{history_days if not args.mock_csv else 'example'} days of history; "
+            f"scoredAt={scored_at.isoformat()}"
+        )
 
 
 if __name__ == "__main__":

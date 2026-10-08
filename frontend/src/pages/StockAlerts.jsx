@@ -44,6 +44,7 @@ const StockAlerts = ({ active, onCountChange }) => {
   const [flags, setFlags] = useState([]);
   const [summary, setSummary] = useState(emptySummary);
   const [scoredAt, setScoredAt] = useState(null);
+  const [historyDays, setHistoryDays] = useState(null);
   const [source, setSource] = useState('model');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -86,6 +87,7 @@ const StockAlerts = ({ active, onCountChange }) => {
       setFlags(nextFlags);
       setSummary(result.summary || getSummary(nextFlags));
       setScoredAt(result.scoredAt || null);
+      setHistoryDays(result.historyDays ?? null);
       setSource(result.source || 'model');
       elapsedRef.current = 0;
       setElapsed(0);
@@ -234,6 +236,7 @@ const StockAlerts = ({ active, onCountChange }) => {
 
   const formatScoredAt = () => {
     if (USE_STOCK_FLAGS_MOCK) return 'Example CSV · 30 Sep 2026';
+    if (source === 'recent-demand-forecast') return 'Recent 28-day demand · 7-day forecast';
     if (source === 'inventory-threshold') return 'Live inventory · threshold check';
     if (!scoredAt) return 'Not scored yet';
     const date = new Date(scoredAt);
@@ -248,7 +251,7 @@ const StockAlerts = ({ active, onCountChange }) => {
         <div>
           <span className="stock-alerts-eyebrow"><AlertTriangle size={15} /> EARLY WARNING</span>
           <h3>Stock alerts</h3>
-          <p>{source === 'inventory-threshold' ? 'Current inventory at or below its low-stock threshold.' : 'Model-powered stock risk, so you can act before a part runs out.'}</p>
+          <p>{source === 'recent-demand-forecast' ? '7-day demand forecast based on recorded part usage over the last 28 days.' : source === 'inventory-threshold' ? 'Current inventory at or below its low-stock threshold; no recent demand history is available to forecast.' : `Trained-model stock risk for the next 7 days.${historyDays != null && historyDays < 56 ? ` Using ${historyDays} days of history; forecast confidence may improve as more history is recorded.` : ''}`}</p>
         </div>
         <div className="stock-source-wrap">
           {USE_STOCK_FLAGS_MOCK && <span className="stock-mock-label">EXAMPLE CSV · MOCK DATA</span>}
@@ -344,7 +347,7 @@ const StockAlerts = ({ active, onCountChange }) => {
                         <span className="stock-category">{selectedFlag.category}</span>
                       </div>
                       <h4>{selectedFlag.name}</h4>
-                      <p className="stock-card-caption">{source === 'inventory-threshold' ? 'Current stock is at or below its reorder threshold' : 'Stock health · predicted over the next 7 days'}</p>
+                      <p className="stock-card-caption">{source === 'recent-demand-forecast' ? 'Based on recent recorded demand · next 7 days' : source === 'inventory-threshold' ? 'Current stock is at or below its reorder threshold' : 'Stock health · predicted over the next 7 days'}</p>
                       <div className="stock-gauge" role="img" aria-label={`Current stock ${selectedFlag.stock} units; threshold ${selectedFlag.threshold} units`}>
                         <div className="stock-gauge-track">
                           <span className="stock-gauge-fill" style={{ width: `${stockWidth}%` }} />
@@ -363,8 +366,9 @@ const StockAlerts = ({ active, onCountChange }) => {
                     </div>
                   </div>
                   <div className="stock-card-metrics">
-                    <div><span>{source === 'inventory-threshold' ? 'Threshold status' : 'Estimated time to threshold'}</span><strong>{source === 'inventory-threshold' ? 'At or below threshold' : selectedFlag.days_to_threshold == null ? '—' : Number(selectedFlag.days_to_threshold) === 0 ? 'Already at threshold' : `${selectedFlag.days_to_threshold} days`}</strong></div>
+                    <div><span>{source === 'inventory-threshold' ? 'Threshold status' : 'Estimated time to threshold'}</span><strong>{source === 'inventory-threshold' ? 'At or below threshold' : selectedFlag.days_to_threshold == null ? 'Beyond forecast' : Number(selectedFlag.days_to_threshold) === 0 ? 'Already at threshold' : `${Number(selectedFlag.days_to_threshold).toFixed(1)} days`}</strong></div>
                     <div><span>Predicted daily demand</span><strong>{selectedFlag.pred_daily_demand == null ? '—' : <>{Number(selectedFlag.pred_daily_demand).toFixed(2)} <small>units / day</small></>}</strong></div>
+                    <div><span>Expected demand · next 7 days</span><strong>{selectedFlag.forecast_demand_7d == null ? 'Not scored' : <>{Number(selectedFlag.forecast_demand_7d).toFixed(1)} <small>units</small></>}</strong></div>
                     <div><span>Suggested order quantity</span><strong>{selectedFlag.suggested_order_qty == null ? 'Not scored' : <>{selectedFlag.suggested_order_qty} <small>units</small></>}</strong></div>
                   </div>
                   <div className="stock-card-footer">
@@ -441,7 +445,7 @@ const StockAlerts = ({ active, onCountChange }) => {
                       <td>{item.category}</td>
                       <td>{item.stock} <span className="stock-table-muted">/ {item.threshold}</span></td>
                       <td>{item.p_low_7d == null ? '—' : `${Math.round(Number(item.p_low_7d) * 100)}%`}</td>
-                      <td>{item.days_to_threshold == null ? '—' : `${item.days_to_threshold} days`}</td>
+                      <td>{item.days_to_threshold == null ? '—' : `${Number(item.days_to_threshold).toFixed(1)} days`}</td>
                       <td>{item.suggested_order_qty ?? '—'}</td>
                     </tr>
                   );
