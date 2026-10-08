@@ -55,7 +55,7 @@ When an owner creates a supplier login, the system emails the supplier a welcome
 
 ## Low-stock early warning
 
-The Inventory page's **Stock Alerts** tab uses the supplied, pre-scored example CSV in mock mode by default. Its badge and Spotlight/List views work without the API; the **EXAMPLE CSV · MOCK DATA** label makes that source explicit. To use model results from the backend, set `USE_STOCK_FLAGS_MOCK` to `false` in `frontend/src/pages/StockAlerts.jsx` and restart the frontend. The real API is owner-authenticated at `GET /api/stock-flags`; `POST /api/stock-flags/refresh` runs the scorer and reports failures.
+The Inventory page's **Stock Alerts** tab uses live, owner-authenticated results from `GET /api/stock-flags` by default. Use its **Refresh** action to run the scorer and reload results; `POST /api/stock-flags/refresh` reports scoring failures. For demos only, set `VITE_USE_STOCK_FLAGS_MOCK=true` when building the frontend to display the supplied example data and the **EXAMPLE CSV · MOCK DATA** label.
 
 ### Install and run the scoring job
 
@@ -80,7 +80,7 @@ To seed flags from the supplied pre-scored example rather than run the model, us
 backend\.venv\Scripts\python.exe backend\ml\score_stock.py --mock-csv "backend\AI Models\flagged_products_2026-09-30.csv"
 ```
 
-Schedule the same live command using Windows Task Scheduler (for example, daily): set the program to the full path of `backend\.venv\Scripts\python.exe`, the argument to the full path of `backend\ml\score_stock.py`, and **Start in** to the `backend` folder. The API refresh button provides a manual run; set `PYTHON_EXECUTABLE` for the backend process if `python` does not resolve to the environment above.
+Schedule the same live command using Windows Task Scheduler (for example, daily): set the program to the full path of `backend\.venv\Scripts\python.exe`, the argument to the full path of `backend\ml\score_stock.py`, and **Start in** to the `backend` folder. The Stock Alerts **Refresh** button provides a manual run; set `PYTHON_EXECUTABLE` for the backend process if `python` does not resolve to the environment above.
 
 ### Data logging and limits
 

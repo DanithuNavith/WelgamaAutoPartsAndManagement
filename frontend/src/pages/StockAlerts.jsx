@@ -8,8 +8,8 @@ import { getStockFlags, refreshStockFlags } from '../services/api';
 import mockFlags from '../data/stockFlagsMock.json';
 import './StockAlerts.css';
 
-// Flip this one switch to false when the authenticated stock-flags API is ready.
-const USE_STOCK_FLAGS_MOCK = true;
+// Live scoring is the default; set VITE_USE_STOCK_FLAGS_MOCK=true only for demos.
+const USE_STOCK_FLAGS_MOCK = import.meta.env.VITE_USE_STOCK_FLAGS_MOCK === 'true';
 const AUTO_ADVANCE_MS = 6000;
 const TIERS = {
   'CRITICAL - already low': { label: 'CRITICAL', icon: AlertTriangle, className: 'critical', order: 0 },
