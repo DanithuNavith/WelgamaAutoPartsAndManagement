@@ -35,6 +35,7 @@ const getSummary = flags => flags.reduce((summary, item) => {
 const asFlagResult = flags => ({
   flags,
   scoredAt: null,
+  source: 'mock',
   summary: getSummary(flags)
 });
 
@@ -43,6 +44,7 @@ const StockAlerts = ({ active, onCountChange }) => {
   const [flags, setFlags] = useState([]);
   const [summary, setSummary] = useState(emptySummary);
   const [scoredAt, setScoredAt] = useState(null);
+  const [source, setSource] = useState('model');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -84,6 +86,7 @@ const StockAlerts = ({ active, onCountChange }) => {
       setFlags(nextFlags);
       setSummary(result.summary || getSummary(nextFlags));
       setScoredAt(result.scoredAt || null);
+      setSource(result.source || 'model');
       elapsedRef.current = 0;
       setElapsed(0);
       setCurrentId(current => (
@@ -174,7 +177,7 @@ const StockAlerts = ({ active, onCountChange }) => {
         await refreshStockFlags();
       } catch (refreshError) {
         setError(refreshError.message || 'Could not refresh stock alerts.');
-        setRefreshing(false);
+        await loadFlags(true);
         return;
       }
     }
@@ -231,6 +234,7 @@ const StockAlerts = ({ active, onCountChange }) => {
 
   const formatScoredAt = () => {
     if (USE_STOCK_FLAGS_MOCK) return 'Example CSV · 30 Sep 2026';
+    if (source === 'inventory-threshold') return 'Live inventory · threshold check';
     if (!scoredAt) return 'Not scored yet';
     const date = new Date(scoredAt);
     return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString();
@@ -244,11 +248,11 @@ const StockAlerts = ({ active, onCountChange }) => {
         <div>
           <span className="stock-alerts-eyebrow"><AlertTriangle size={15} /> EARLY WARNING</span>
           <h3>Stock alerts</h3>
-          <p>Model-powered stock risk, so you can act before a part runs out.</p>
+          <p>{source === 'inventory-threshold' ? 'Current inventory at or below its low-stock threshold.' : 'Model-powered stock risk, so you can act before a part runs out.'}</p>
         </div>
         <div className="stock-source-wrap">
           {USE_STOCK_FLAGS_MOCK && <span className="stock-mock-label">EXAMPLE CSV · MOCK DATA</span>}
-          <span className="stock-scored-at">Last scored <strong>{formatScoredAt()}</strong></span>
+          <span className="stock-scored-at">{source === 'inventory-threshold' ? 'Alert source' : 'Last scored'} <strong>{formatScoredAt()}</strong></span>
         </div>
       </div>
 
@@ -340,7 +344,7 @@ const StockAlerts = ({ active, onCountChange }) => {
                         <span className="stock-category">{selectedFlag.category}</span>
                       </div>
                       <h4>{selectedFlag.name}</h4>
-                      <p className="stock-card-caption">Stock health · predicted over the next 7 days</p>
+                      <p className="stock-card-caption">{source === 'inventory-threshold' ? 'Current stock is at or below its reorder threshold' : 'Stock health · predicted over the next 7 days'}</p>
                       <div className="stock-gauge" role="img" aria-label={`Current stock ${selectedFlag.stock} units; threshold ${selectedFlag.threshold} units`}>
                         <div className="stock-gauge-track">
                           <span className="stock-gauge-fill" style={{ width: `${stockWidth}%` }} />
@@ -354,17 +358,17 @@ const StockAlerts = ({ active, onCountChange }) => {
                     </div>
                     <div className="stock-probability">
                       <span>Risk in 7 days</span>
-                      <strong>{Math.round(Number(selectedFlag.p_low_7d) * 100)}<small>%</small></strong>
-                      <span className="stock-probability-caption">probability</span>
+                      <strong>{selectedFlag.p_low_7d == null ? '—' : <>{Math.round(Number(selectedFlag.p_low_7d) * 100)}<small>%</small></>}</strong>
+                      <span className="stock-probability-caption">{selectedFlag.p_low_7d == null ? 'model unavailable' : 'probability'}</span>
                     </div>
                   </div>
                   <div className="stock-card-metrics">
-                    <div><span>Estimated time to threshold</span><strong>{Number(selectedFlag.days_to_threshold) === 0 ? 'Already at threshold' : `${selectedFlag.days_to_threshold} days`}</strong></div>
-                    <div><span>Predicted daily demand</span><strong>{Number(selectedFlag.pred_daily_demand).toFixed(2)} <small>units / day</small></strong></div>
-                    <div><span>Suggested order quantity</span><strong>{selectedFlag.suggested_order_qty} <small>units</small></strong></div>
+                    <div><span>{source === 'inventory-threshold' ? 'Threshold status' : 'Estimated time to threshold'}</span><strong>{source === 'inventory-threshold' ? 'At or below threshold' : selectedFlag.days_to_threshold == null ? '—' : Number(selectedFlag.days_to_threshold) === 0 ? 'Already at threshold' : `${selectedFlag.days_to_threshold} days`}</strong></div>
+                    <div><span>Predicted daily demand</span><strong>{selectedFlag.pred_daily_demand == null ? '—' : <>{Number(selectedFlag.pred_daily_demand).toFixed(2)} <small>units / day</small></>}</strong></div>
+                    <div><span>Suggested order quantity</span><strong>{selectedFlag.suggested_order_qty == null ? 'Not scored' : <>{selectedFlag.suggested_order_qty} <small>units</small></>}</strong></div>
                   </div>
                   <div className="stock-card-footer">
-                    <span><Package size={16} /> Based on current stock and model forecast</span>
+                    <span><Package size={16} /> {source === 'inventory-threshold' ? 'Based on current stock and reorder threshold' : 'Based on current stock and model forecast'}</span>
                     <button type="button" className="stock-order-button" onClick={() => openPurchaseOrder(selectedFlag)}>
                       <ShoppingCart size={16} /> Create purchase order
                     </button>
@@ -436,9 +440,9 @@ const StockAlerts = ({ active, onCountChange }) => {
                       <td><strong>{item.name}</strong></td>
                       <td>{item.category}</td>
                       <td>{item.stock} <span className="stock-table-muted">/ {item.threshold}</span></td>
-                      <td>{Math.round(Number(item.p_low_7d) * 100)}%</td>
-                      <td>{item.days_to_threshold} days</td>
-                      <td>{item.suggested_order_qty}</td>
+                      <td>{item.p_low_7d == null ? '—' : `${Math.round(Number(item.p_low_7d) * 100)}%`}</td>
+                      <td>{item.days_to_threshold == null ? '—' : `${item.days_to_threshold} days`}</td>
+                      <td>{item.suggested_order_qty ?? '—'}</td>
                     </tr>
                   );
                 }) : <tr><td colSpan="7" className="stock-table-empty">No flagged parts match these filters.</td></tr>}

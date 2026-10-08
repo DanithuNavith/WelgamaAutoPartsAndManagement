@@ -55,7 +55,7 @@ When an owner creates a supplier login, the system emails the supplier a welcome
 
 ## Low-stock early warning
 
-The Inventory page's **Stock Alerts** tab uses live, owner-authenticated results from `GET /api/stock-flags` by default. Use its **Refresh** action to run the scorer and reload results; `POST /api/stock-flags/refresh` reports scoring failures. For demos only, set `VITE_USE_STOCK_FLAGS_MOCK=true` when building the frontend to display the supplied example data and the **EXAMPLE CSV · MOCK DATA** label.
+The Inventory page's **Stock Alerts** tab uses live, owner-authenticated results from `GET /api/stock-flags` by default. If no model scores have been saved yet, it reports products currently at or below their low-stock threshold as live inventory-threshold alerts; these do not include forecast metrics. Use its **Refresh** action to run the scorer and reload results; `POST /api/stock-flags/refresh` reports scoring failures. For demos only, set `VITE_USE_STOCK_FLAGS_MOCK=true` when building the frontend to display the supplied example data and the **EXAMPLE CSV · MOCK DATA** label.
 
 ### Install and run the scoring job
 
