@@ -115,7 +115,7 @@ const SupplierDashboard = () => {
     setError('');
     setOrders(current => current.map(item => item._id === order._id ? {
       ...item,
-      status,
+      status: status === 'Received' ? 'Awaiting acceptance' : status,
       rejectionReason: status === 'Rejected' ? reason : null,
       deliveryStatus: status === 'Received' ? 'Delivered' : item.deliveryStatus
     } : item));
@@ -273,8 +273,8 @@ const SupplierDashboard = () => {
                     <td><span className={`status-badge ${statusClass(order.deliveryStatus)}`}>{order.deliveryStatus}</span></td>
                     <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                     <td>
-                      {['Received', 'Rejected'].includes(order.status) ? (
-                        <span className="order-closed">Closed</span>
+                      {['Awaiting acceptance', 'Received', 'Rejected'].includes(order.status) ? (
+                        <span className="order-closed">{order.status === 'Awaiting acceptance' ? 'Awaiting owner acceptance' : 'Closed'}</span>
                       ) : (
                         <div className="order-actions">
                           <button className="order-complete" onClick={() => updateOrderStatus(order, 'Received')}>

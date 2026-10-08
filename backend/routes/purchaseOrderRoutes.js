@@ -26,12 +26,16 @@ router.post('/', requireRole('Owner'), async (req, res) => {
   try {
     const { supplier, orderNumber, items, orderDate, status } = req.body;
     if (!supplier || !items?.length) return res.status(400).json({ error: 'Supplier and at least one item are required' });
+    const initialStatus = status || 'Pending';
+    if (!['Pending', 'Ordered', 'Partially Received'].includes(initialStatus)) {
+      return res.status(400).json({ error: 'A purchase order must start in an open status' });
+    }
     const supplierProfile = await Supplier.findById(supplier);
     if (!supplierProfile) return res.status(404).json({ error: 'Supplier not found' });
     const calculatedSubtotal = items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unitPrice)), 0);
     const order = await PurchaseOrder.create({
       supplier, orderNumber, items, subtotal: calculatedSubtotal, total: calculatedSubtotal,
-      orderDate, status: status || 'Pending'
+      orderDate, status: initialStatus
     });
     let emailStatus;
     try {
@@ -69,13 +73,12 @@ router.post('/:id/email', requireRole('Owner'), async (req, res) => {
 });
 
 router.patch('/:id/supplier-status', requireRole('Supplier'), async (req, res) => {
-  const inventoryUpdates = [];
   try {
     if (!['Received', 'Rejected'].includes(req.body.status)) return res.status(400).json({ error: 'Supplier can only complete or reject an order' });
     const supplier = await Supplier.findOne({ $or: [{ user: req.user.id }, { _id: req.user.supplierProfile }, { email: req.user.email }] });
     const order = supplier ? await PurchaseOrder.findOne({ _id: req.params.id, supplier: supplier._id }) : null;
     if (!order) return res.status(404).json({ error: 'Order not found for this supplier' });
-    if (['Received', 'Rejected'].includes(order.status)) return res.status(400).json({ error: 'This order has already been closed' });
+    if (['Awaiting acceptance', 'Received', 'Rejected'].includes(order.status)) return res.status(400).json({ error: 'This order has already been completed' });
 
     if (req.body.status === 'Rejected') {
       const rejectionReason = String(req.body.rejectionReason || '').trim();
@@ -89,37 +92,100 @@ router.patch('/:id/supplier-status', requireRole('Supplier'), async (req, res) =
     }
 
     if (req.body.status === 'Received') {
-      for (const item of order.items) {
-        if (!item.product) return res.status(400).json({ error: `Inventory product missing for ${item.productName}` });
-        const product = await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } }, { new: true });
-        if (!product) {
-          for (const update of inventoryUpdates) await Product.updateOne({ _id: update.product }, { $inc: { quantity: -update.quantity } });
-          return res.status(400).json({ error: `Inventory product not found for ${item.productName}` });
-        }
-        inventoryUpdates.push({ product: item.product, quantity: item.quantity });
-      }
-    }
-    order.status = req.body.status;
-    if (req.body.status === 'Received') {
+      order.status = 'Awaiting acceptance';
       order.deliveryStatus = 'Delivered';
-      order.receivedAt = new Date();
+      order.supplierCompletedAt = new Date();
+    } else {
+      order.status = 'Rejected';
     }
     await order.save();
     res.json(await order.populate('supplier', 'name contactPerson email'));
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+router.patch('/:id/accept', requireRole('Owner'), async (req, res) => {
+  let acceptedOrder;
+  const inventoryUpdates = [];
+  try {
+    const order = await PurchaseOrder.findOne({ _id: req.params.id, status: 'Awaiting acceptance' });
+    if (!order) {
+      const existingOrder = await PurchaseOrder.exists({ _id: req.params.id });
+      return res.status(existingOrder ? 409 : 404).json({
+        error: existingOrder ? 'This order is not awaiting owner acceptance' : 'Purchase order not found'
+      });
+    }
+
+    const productIds = order.items.map(item => item.product).filter(Boolean);
+    const existingProducts = await Product.find({ _id: { $in: productIds } }).select('_id');
+    const existingProductIds = new Set(existingProducts.map(product => String(product._id)));
+    const missingItem = order.items.find(item => !item.product || !existingProductIds.has(String(item.product)));
+    if (missingItem) return res.status(400).json({ error: `Inventory product missing for ${missingItem.productName}` });
+
+    acceptedOrder = await PurchaseOrder.findOneAndUpdate(
+      { _id: order._id, status: 'Awaiting acceptance' },
+      { $set: { status: 'Received', receivedAt: new Date() } },
+      { new: true, runValidators: true }
+    );
+    if (!acceptedOrder) return res.status(409).json({ error: 'This order has already been accepted' });
+
+    for (const item of order.items) {
+      const product = await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { quantity: item.quantity } },
+        { new: true }
+      );
+      if (!product) throw new Error(`Inventory product not found for ${item.productName}`);
+      inventoryUpdates.push({ product: item.product, quantity: item.quantity });
+    }
+
+    res.json(await acceptedOrder.populate('supplier', 'name contactPerson email'));
+  } catch (err) {
+    try {
+      for (const update of inventoryUpdates) {
+        await Product.updateOne({ _id: update.product }, { $inc: { quantity: -update.quantity } });
+      }
+      if (acceptedOrder) {
+        await PurchaseOrder.updateOne(
+          { _id: acceptedOrder._id, status: 'Received' },
+          { $set: { status: 'Awaiting acceptance' }, $unset: { receivedAt: 1 } }
+        );
+      }
+    } catch (rollbackError) {
+      console.error(`Purchase order acceptance rollback failed for order ${req.params.id}:`, rollbackError.message);
+      return res.status(500).json({ error: 'Unable to accept the order and inventory rollback failed. Please contact support.' });
+    }
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.patch('/:id', requireRole('Owner'), async (req, res) => {
   try {
     const allowed = {};
-    if (req.body.status) allowed.status = req.body.status;
-    if (req.body.deliveryStatus) allowed.deliveryStatus = req.body.deliveryStatus;
-    const order = await PurchaseOrder.findByIdAndUpdate(req.params.id, allowed, { new: true, runValidators: true });
-    if (!order) return res.status(404).json({ error: 'Purchase order not found' });
+    if (req.body.status !== undefined) {
+      if (!['Pending', 'Ordered', 'Partially Received'].includes(req.body.status)) {
+        return res.status(400).json({ error: 'Use the owner acceptance action to receive delivered quantities' });
+      }
+      allowed.status = req.body.status;
+    }
+    if (req.body.deliveryStatus !== undefined) {
+      if (!['Awaiting dispatch', 'In transit'].includes(req.body.deliveryStatus)) {
+        return res.status(400).json({ error: 'Delivery status can only be changed to Awaiting dispatch or In transit' });
+      }
+      allowed.deliveryStatus = req.body.deliveryStatus;
+    }
+    const currentOrder = await PurchaseOrder.findById(req.params.id);
+    if (!currentOrder) return res.status(404).json({ error: 'Purchase order not found' });
+    if (['Awaiting acceptance', 'Received', 'Rejected'].includes(currentOrder.status)) {
+      return res.status(409).json({ error: 'Completed orders cannot be changed' });
+    }
+    const order = await PurchaseOrder.findOneAndUpdate(
+      { _id: req.params.id, status: currentOrder.status },
+      allowed,
+      { new: true, runValidators: true }
+    );
+    if (!order) return res.status(409).json({ error: 'Purchase order status changed. Refresh and try again.' });
     res.json(order);
   } catch (err) {
-    for (const update of inventoryUpdates) await Product.updateOne({ _id: update.product }, { $inc: { quantity: -update.quantity } });
-    
     res.status(400).json({ error: err.message });
   }
 });

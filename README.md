@@ -47,7 +47,7 @@ MAIL_FROM=your-sender@gmail.com
 
 ## Supplier purchase order email
 
-When an owner creates a purchase order, the system emails the supplier's registered email address with the order number, requested parts, quantities, unit prices, and total. Purchase order emails use the SMTP settings above. If sending fails, the order is still created; the owner can see the failure and retry delivery from **Purchase Orders**.
+When an owner creates a purchase order, the system emails the supplier's registered email address with the order number, requested parts, quantities, unit prices, and total. Purchase order emails use the SMTP settings above. If sending fails, the order is still created; the owner can see the failure and retry delivery from **Purchase Orders**. When the supplier marks the order complete, it waits for owner acceptance in **Purchase Orders**. Accepting it adds the ordered quantities to inventory; the supplier's completion alone does not change stock.
 
 ## Supplier account welcome email
 
@@ -72,7 +72,7 @@ Keep `MONGO_URI` configured in `backend/.env` (or `backend/backend.env`). To sco
 backend\.venv\Scripts\python.exe backend\ml\score_stock.py
 ```
 
-The job reads product data without selecting the image field, non-repair sales line items and job-card parts used as demand history, appointment dates for job/booked counts, and received purchase orders as restock events. Repair invoices are excluded from the sale-line demand so their parts are not counted twice; their job-card `partsUsed` entries are used instead. New supplier-confirmed receipts retain a `receivedAt` date; older received orders fall back to their last-update date. It loads `backend/AI Models/low_stock_model.pkl` through `stockflag.load_bundle`, calls `stockflag.score_products`, and replaces the `stock_flags` collection with the latest rows and `scoredAt`. If no demand history exists, or its earliest record is less than 56 days old, it stops with an explicit error instead of filling the gap with invented history.
+The job reads product data without selecting the image field, non-repair sales line items and job-card parts used as demand history, appointment dates for job/booked counts, and owner-accepted purchase orders as restock events. Repair invoices are excluded from the sale-line demand so their parts are not counted twice; their job-card `partsUsed` entries are used instead. New owner-accepted receipts retain a `receivedAt` date; older received orders fall back to their last-update date. It loads `backend/AI Models/low_stock_model.pkl` through `stockflag.load_bundle`, calls `stockflag.score_products`, and replaces the `stock_flags` collection with the latest rows and `scoredAt`. If no demand history exists, or its earliest record is less than 56 days old, it stops with an explicit error instead of filling the gap with invented history.
 
 To seed flags from the supplied pre-scored example rather than run the model, use:
 
@@ -84,4 +84,4 @@ Schedule the same live command using Windows Task Scheduler (for example, daily)
 
 ### Data logging and limits
 
-Live model scoring requires actual sale line items or job-card parts-used records with product IDs and quantities over at least 56 days. This app has a `Sale.items` collection path; job cards provide appointment dates and parts used; purchase orders marked **Received** provide received quantities and their last-update date as the receipt-date proxy. This repository does not yet keep a dedicated goods-received event/partial-receipt history, so received-order timestamps are approximate. For better forecasts, keep recording each sale's product and quantity, each actual receipt's product and received quantity/date (including partial receipts), and each job card's appointment date and parts used. Jobs and appointments are currently counted by appointment date.
+Live model scoring requires actual sale line items or job-card parts-used records with product IDs and quantities over at least 56 days. This app has a `Sale.items` collection path; job cards provide appointment dates and parts used; purchase orders marked **Received** provide owner-accepted quantities and their `receivedAt` date. This repository does not yet keep a dedicated goods-received event/partial-receipt history. For better forecasts, keep recording each sale's product and quantity, each actual receipt's product and received quantity/date (including partial receipts), and each job card's appointment date and parts used. Jobs and appointments are currently counted by appointment date.

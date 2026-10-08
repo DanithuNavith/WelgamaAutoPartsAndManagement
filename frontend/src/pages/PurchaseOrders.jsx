@@ -4,7 +4,7 @@ import { ClipboardList, Plus, Search, Trash2, X } from 'lucide-react';
 import { API_BASE_URL } from '../services/apiBase';
 
 const emptyItem = { product: null, productName: '', category: '', quantity: 1, unitPrice: '' };
-const statuses = ['Pending', 'Ordered', 'Partially Received', 'Received', 'Rejected'];
+const statuses = ['Pending', 'Ordered', 'Partially Received'];
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
 
 const PurchaseOrders = () => {
@@ -22,6 +22,7 @@ const PurchaseOrders = () => {
   const [error, setError] = useState('');
   const [emailNotice, setEmailNotice] = useState(null);
   const [retryingOrderId, setRetryingOrderId] = useState(null);
+  const [acceptingOrderId, setAcceptingOrderId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reorderNotice, setReorderNotice] = useState('');
 
@@ -97,7 +98,26 @@ const PurchaseOrders = () => {
       setRetryingOrderId(null);
     }
   };
-  const changeStatus = async (id, nextStatus) => { await fetch(`${API_BASE_URL}/purchase-orders/${id}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status: nextStatus }) }); loadData(); };
+  const changeStatus = async (id, nextStatus) => {
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/purchase-orders/${id}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status: nextStatus }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to update purchase order');
+      await loadData();
+    } catch (err) { setError(err.message); }
+  };
+  const acceptDelivery = async order => {
+    setError('');
+    setAcceptingOrderId(order._id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/purchase-orders/${order._id}/accept`, { method: 'PATCH', headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to accept delivered quantities');
+      await loadData();
+    } catch (err) { setError(err.message); }
+    finally { setAcceptingOrderId(null); }
+  };
   const money = value => `Rs. ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return <div className="purchase-page">
@@ -111,7 +131,7 @@ const PurchaseOrders = () => {
       <div className="purchase-items">{items.map((item, index) => <div className="purchase-item-row" key={index}><div className="product-picker"><label>Product</label>{item.product ? <div className="selected-product"><span><strong>{item.productName}</strong><small>{item.category}</small></span><button type="button" className="icon-button" title="Change product" onClick={() => updateItem(index, 'product', null)}><X size={15} /></button></div> : <><div className="supplier-search product-search"><Search size={16} /><input required value={productSearch} onChange={event => setProductSearch(event.target.value)} placeholder="Search product or category" /></div>{productSearch && <div className="product-results">{filteredProducts.map(product => <button type="button" key={product._id} onClick={() => selectProduct(index, product)}><strong>{product.name}</strong><span>{product.category} · Stock {product.quantity}</span></button>)}</div>}</>}</div><label>Quantity<input required min="1" type="number" className="input" value={item.quantity} onChange={event => updateItem(index, 'quantity', event.target.value)} /></label><label>Unit purchase price<input required min="0" step="0.01" type="number" className="input" value={item.unitPrice} onChange={event => updateItem(index, 'unitPrice', event.target.value)} placeholder="0.00" /></label><div className="item-subtotal"><span>Subtotal</span><strong>{money(Number(item.quantity || 0) * Number(item.unitPrice || 0))}</strong></div><button type="button" className="icon-button danger" title="Remove item" disabled={items.length === 1} onClick={() => removeItem(index)}><Trash2 size={17} /></button></div>)}</div>
       <div className="purchase-submit"><div><span>Total purchase amount</span><strong>{money(subtotal)}</strong></div><button type="submit" className="btn btn-primary">Create Purchase Order</button></div>
     </form></section>
-    <section className="card purchase-history-card"><div className="list-heading"><div><h4>Purchase order history</h4><p>Orders are automatically visible to their selected supplier.</p></div></div><div className="table-container"><table><thead><tr><th>Purchase Order ID</th><th>Supplier</th><th>Items</th><th>Amount</th><th>Date</th><th>Supplier email</th><th>Status</th></tr></thead><tbody>{loading ? <tr><td colSpan="7" className="empty-state">Loading orders...</td></tr> : orders.length === 0 ? <tr><td colSpan="7" className="empty-state">No purchase orders created yet.</td></tr> : orders.map(order => <tr key={order._id}><td><strong>{order.orderNumber}</strong></td><td>{order.supplier?.name || 'Unknown supplier'}</td><td>{order.items.map(item => <span className="order-line" key={`${order._id}-${item.productName}`}>{item.productName} × {item.quantity}</span>)}</td><td>{money(order.total)}</td><td>{new Date(order.orderDate).toLocaleDateString()}</td><td>{order.supplierEmailSent ? <span>Sent{order.supplierEmailSentAt ? ` ${new Date(order.supplierEmailSentAt).toLocaleDateString()}` : ''}</span> : <button type="button" className="btn btn-outline" onClick={() => retryOrderEmail(order)} disabled={retryingOrderId === order._id}>{retryingOrderId === order._id ? 'Sending...' : 'Retry email'}</button>}</td><td><select className={`status-select status-${order.status.toLowerCase().replaceAll(' ', '-')}`} value={order.status} onChange={event => changeStatus(order._id, event.target.value)}>{statuses.map(item => <option key={item}>{item}</option>)}</select></td></tr>)}</tbody></table></div></section>
+    <section className="card purchase-history-card"><div className="list-heading"><div><h4>Purchase order history</h4><p>Accept supplier-completed orders to add their quantities to inventory.</p></div></div><div className="table-container"><table><thead><tr><th>Purchase Order ID</th><th>Supplier</th><th>Items</th><th>Amount</th><th>Date</th><th>Supplier email</th><th>Status / inventory</th></tr></thead><tbody>{loading ? <tr><td colSpan="7" className="empty-state">Loading orders...</td></tr> : orders.length === 0 ? <tr><td colSpan="7" className="empty-state">No purchase orders created yet.</td></tr> : orders.map(order => <tr key={order._id}><td><strong>{order.orderNumber}</strong></td><td>{order.supplier?.name || 'Unknown supplier'}</td><td>{order.items.map(item => <span className="order-line" key={`${order._id}-${item.productName}`}>{item.productName} × {item.quantity}</span>)}</td><td>{money(order.total)}</td><td>{new Date(order.orderDate).toLocaleDateString()}</td><td>{order.supplierEmailSent ? <span>Sent{order.supplierEmailSentAt ? ` ${new Date(order.supplierEmailSentAt).toLocaleDateString()}` : ''}</span> : <button type="button" className="btn btn-outline" onClick={() => retryOrderEmail(order)} disabled={retryingOrderId === order._id}>{retryingOrderId === order._id ? 'Sending...' : 'Retry email'}</button>}</td><td>{order.status === 'Awaiting acceptance' ? <button type="button" className="btn btn-primary" onClick={() => acceptDelivery(order)} disabled={acceptingOrderId === order._id}>{acceptingOrderId === order._id ? 'Accepting...' : 'Accept & add to inventory'}</button> : ['Received', 'Rejected'].includes(order.status) ? <span className={`status-select status-${order.status.toLowerCase()}`}>{order.status}</span> : <select className={`status-select status-${order.status.toLowerCase().replaceAll(' ', '-')}`} value={order.status} onChange={event => changeStatus(order._id, event.target.value)}>{statuses.map(item => <option key={item}>{item}</option>)}</select>}</td></tr>)}</tbody></table></div></section>
   </div>;
 };
 export default PurchaseOrders;

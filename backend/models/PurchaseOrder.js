@@ -11,13 +11,14 @@ const purchaseOrderSchema = new mongoose.Schema({
   }],
   subtotal: { type: Number, required: true, min: 0 },
   total: { type: Number, required: true, min: 0 },
-  status: { type: String, enum: ['Pending', 'Ordered', 'Partially Received', 'Received', 'Rejected'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Ordered', 'Partially Received', 'Awaiting acceptance', 'Received', 'Rejected'], default: 'Pending' },
   rejectionReason: { type: String, enum: ['Out of stock', 'Price mismatch', 'Cannot deliver', 'Wrong item'], default: null },
   deliveryStatus: { type: String, enum: ['Awaiting dispatch', 'In transit', 'Delivered'], default: 'Awaiting dispatch' },
   supplierEmailSent: { type: Boolean, default: false },
   supplierEmailSentAt: { type: Date },
   orderDate: { type: Date, default: Date.now },
   expectedDelivery: { type: Date },
+  supplierCompletedAt: { type: Date },
   receivedAt: { type: Date }
 }, { timestamps: true });
 
