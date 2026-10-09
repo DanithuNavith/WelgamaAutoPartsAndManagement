@@ -17,6 +17,7 @@ const supplierRoutes = require('./routes/supplierRoutes');
 const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
 const authRoutes = require('./routes/authRoutes');
 const stockFlagRoutes = require('./routes/stockFlagRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const User = require('./models/User');
 const Technician = require('./models/Technician');
 
@@ -48,6 +49,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchase-orders', purchaseOrderRoutes);
 app.use('/api/stock-flags', stockFlagRoutes);
+app.use('/api/chat', chatRoutes);
 
 const frontendDirectory = path.join(__dirname, 'public');
 const frontendEntry = path.join(frontendDirectory, 'index.html');

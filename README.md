@@ -24,6 +24,12 @@ The React website and Express API are served together by the Node.js application
 3. Add `MONGO_URI` (or `MONGODB_URI`) in the app's environment variables and allow Hostinger's outbound IP in MongoDB Atlas Network Access. The backend listens on Hostinger's `PORT`; `/api/health` reports whether its MongoDB connection is ready.
 4. Point the main domain to this Node.js application and enable HTTPS. Open the main domain to see the site; open `/api/health` to check the API/database status.
 
+### Qwen inventory chatbot
+
+The inventory assistant uses Ollama with `qwen2.5:3b` for questions it cannot answer with its built-in inventory workflows. Install Ollama on the backend host and download the model with `ollama pull qwen2.5:3b`. The defaults are `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL=qwen2.5:3b`; configure these in the backend environment if Ollama is hosted elsewhere. Keep Ollama on a private network and make sure the backend host can reach it. For Hostinger deployment, Ollama must run on a separate reachable server or managed service; it cannot be assumed to run on the user's browser or on the Node.js app host.
+
+The backend sends the model a limited inventory snapshot (product name, category, stock, selling price, and low-stock threshold). It does not send cost price. The model is read-only: adding and changing products continues to use the existing validated flow and explicit owner confirmation. If Ollama is unavailable, the chatbot displays an error instead of silently pretending the model replied.
+
 ### Send invoices with Gmail
 
 1. Use the Gmail account that should send invoices. In that Google Account, enable **2-Step Verification**, then create an **App password** under **Security → 2-Step Verification → App passwords**. Use the generated app password, not your normal Gmail password.

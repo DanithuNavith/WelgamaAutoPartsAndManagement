@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../services/apiBase';
 const emptyItem = { product: null, productName: '', category: '', quantity: 1, unitPrice: '' };
 const statuses = ['Pending', 'Ordered', 'Partially Received'];
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
+const money = value => `Rs. ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const PurchaseOrders = () => {
   const location = useLocation();
@@ -14,6 +15,8 @@ const PurchaseOrders = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [historySearch, setHistorySearch] = useState('');
+  const [historySort, setHistorySort] = useState('newest');
   const [supplier, setSupplier] = useState('');
   const [orderDate, setOrderDate] = useState(new Date().toISOString().slice(0, 10));
   const [items, setItems] = useState([{ ...emptyItem }]);
@@ -65,6 +68,47 @@ const PurchaseOrders = () => {
     const query = productSearch.trim().toLowerCase();
     return query ? products.filter(product => `${product.name} ${product.category}`.toLowerCase().includes(query)) : products;
   }, [productSearch, products]);
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const monthlyOrders = orders.filter(order => {
+    const date = new Date(order.orderDate);
+    return !Number.isNaN(date.getTime()) && date.getUTCFullYear() === currentYear && date.getUTCMonth() === currentMonth;
+  });
+  const query = historySearch.trim().toLowerCase();
+  const visibleOrders = monthlyOrders.filter(order => {
+      if (!query) return true;
+      const date = new Date(order.orderDate);
+      const searchable = [
+        order.orderNumber,
+        order.supplier?.name,
+        order.supplier?.email,
+        order.status,
+        order.supplierEmailSent ? 'email sent' : 'email not sent',
+        order.items.map(item => item.productName).join(' '),
+        Number(order.total).toLocaleString(),
+        money(order.total),
+        date.toLocaleDateString()
+      ].join(' ').toLowerCase();
+      return searchable.includes(query);
+    }).sort((first, second) => {
+      switch (historySort) {
+        case 'oldest':
+          return new Date(first.orderDate) - new Date(second.orderDate);
+        case 'id-asc':
+          return String(first.orderNumber).localeCompare(String(second.orderNumber));
+        case 'id-desc':
+          return String(second.orderNumber).localeCompare(String(first.orderNumber));
+        case 'supplier-asc':
+          return String(first.supplier?.name || '').localeCompare(String(second.supplier?.name || ''));
+        case 'amount-desc':
+          return Number(second.total) - Number(first.total);
+        case 'amount-asc':
+          return Number(first.total) - Number(second.total);
+        default:
+          return new Date(second.orderDate) - new Date(first.orderDate);
+      }
+    });
 
   const selectProduct = (index, product) => {
     setItems(items.map((item, itemIndex) => itemIndex === index ? { ...item, product, productName: product.name, category: product.category, unitPrice: product.price } : item));
@@ -118,10 +162,8 @@ const PurchaseOrders = () => {
     } catch (err) { setError(err.message); }
     finally { setAcceptingOrderId(null); }
   };
-  const money = value => `Rs. ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
   return <div className="purchase-page">
-    <div className="purchase-heading"><div><div className="eyebrow"><ClipboardList size={16} /> Procurement workspace</div><h3>Purchase Orders</h3><p className="page-subtitle">Create and track parts orders for your supplier network.</p></div><div className="supplier-count"><strong>{orders.length}</strong><span>orders</span></div></div>
+    <div className="purchase-heading"><div><div className="eyebrow"><ClipboardList size={16} /> Procurement workspace</div><h3>Purchase Orders</h3><p className="page-subtitle">Create and track parts orders for your supplier network.</p></div><div className="supplier-count"><strong>{monthlyOrders.length}</strong><span>this month</span></div></div>
     {error && <p className="form-error purchase-error" role="alert">{error}</p>}
     {reorderNotice && <p className="purchase-reorder-notice" role="status">{reorderNotice}</p>}
     {emailNotice && <div className={`invoice-email-status ${emailNotice.sent ? 'sent' : 'failed'}`} role={emailNotice.sent ? 'status' : 'alert'}><span>{emailNotice.sent ? `Purchase order email sent to ${emailNotice.to}.` : `Purchase order${emailNotice.orderNumber ? ` ${emailNotice.orderNumber}` : ''} created, but email was not sent: ${emailNotice.error}`}</span></div>}
@@ -131,7 +173,7 @@ const PurchaseOrders = () => {
       <div className="purchase-items">{items.map((item, index) => <div className="purchase-item-row" key={index}><div className="product-picker"><label>Product</label>{item.product ? <div className="selected-product"><span><strong>{item.productName}</strong><small>{item.category}</small></span><button type="button" className="icon-button" title="Change product" onClick={() => updateItem(index, 'product', null)}><X size={15} /></button></div> : <><div className="supplier-search product-search"><Search size={16} /><input required value={productSearch} onChange={event => setProductSearch(event.target.value)} placeholder="Search product or category" /></div>{productSearch && <div className="product-results">{filteredProducts.map(product => <button type="button" key={product._id} onClick={() => selectProduct(index, product)}><strong>{product.name}</strong><span>{product.category} · Stock {product.quantity}</span></button>)}</div>}</>}</div><label>Quantity<input required min="1" type="number" className="input" value={item.quantity} onChange={event => updateItem(index, 'quantity', event.target.value)} /></label><label>Unit purchase price<input required min="0" step="0.01" type="number" className="input" value={item.unitPrice} onChange={event => updateItem(index, 'unitPrice', event.target.value)} placeholder="0.00" /></label><div className="item-subtotal"><span>Subtotal</span><strong>{money(Number(item.quantity || 0) * Number(item.unitPrice || 0))}</strong></div><button type="button" className="icon-button danger" title="Remove item" disabled={items.length === 1} onClick={() => removeItem(index)}><Trash2 size={17} /></button></div>)}</div>
       <div className="purchase-submit"><div><span>Total purchase amount</span><strong>{money(subtotal)}</strong></div><button type="submit" className="btn btn-primary">Create Purchase Order</button></div>
     </form></section>
-    <section className="card purchase-history-card"><div className="list-heading"><div><h4>Purchase order history</h4><p>Accept supplier-completed orders to add their quantities to inventory.</p></div></div><div className="table-container"><table><thead><tr><th>Purchase Order ID</th><th>Supplier</th><th>Items</th><th>Amount</th><th>Date</th><th>Supplier email</th><th>Status / inventory</th></tr></thead><tbody>{loading ? <tr><td colSpan="7" className="empty-state">Loading orders...</td></tr> : orders.length === 0 ? <tr><td colSpan="7" className="empty-state">No purchase orders created yet.</td></tr> : orders.map(order => <tr key={order._id}><td><strong>{order.orderNumber}</strong></td><td>{order.supplier?.name || 'Unknown supplier'}</td><td>{order.items.map(item => <span className="order-line" key={`${order._id}-${item.productName}`}>{item.productName} × {item.quantity}</span>)}</td><td>{money(order.total)}</td><td>{new Date(order.orderDate).toLocaleDateString()}</td><td>{order.supplierEmailSent ? <span>Sent{order.supplierEmailSentAt ? ` ${new Date(order.supplierEmailSentAt).toLocaleDateString()}` : ''}</span> : <button type="button" className="btn btn-outline" onClick={() => retryOrderEmail(order)} disabled={retryingOrderId === order._id}>{retryingOrderId === order._id ? 'Sending...' : 'Retry email'}</button>}</td><td>{order.status === 'Awaiting acceptance' ? <button type="button" className="btn btn-primary" onClick={() => acceptDelivery(order)} disabled={acceptingOrderId === order._id}>{acceptingOrderId === order._id ? 'Accepting...' : 'Accept & add to inventory'}</button> : ['Received', 'Rejected'].includes(order.status) ? <span className={`status-select status-${order.status.toLowerCase()}`}>{order.status}</span> : <select className={`status-select status-${order.status.toLowerCase().replaceAll(' ', '-')}`} value={order.status} onChange={event => changeStatus(order._id, event.target.value)}>{statuses.map(item => <option key={item}>{item}</option>)}</select>}</td></tr>)}</tbody></table></div></section>
+    <section className="card purchase-history-card"><div className="list-heading purchase-history-heading"><div><h4>Purchase order history</h4><p>Showing orders placed in {now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}. Accept supplier-completed orders to add their quantities to inventory.</p></div><div className="purchase-history-controls"><label className="supplier-search history-search"><Search size={16} /><input type="search" value={historySearch} onChange={event => setHistorySearch(event.target.value)} placeholder="Search this month's orders" aria-label="Search this month's purchase orders" /></label><label className="purchase-sort-label"><span>Sort by</span><select className="input" value={historySort} onChange={event => setHistorySort(event.target.value)} aria-label="Sort purchase orders"><option value="newest">Date: newest first</option><option value="oldest">Date: oldest first</option><option value="id-asc">PO ID: A to Z</option><option value="id-desc">PO ID: Z to A</option><option value="supplier-asc">Supplier: A to Z</option><option value="amount-desc">Amount: high to low</option><option value="amount-asc">Amount: low to high</option></select></label></div></div><div className="table-container"><table><thead><tr><th>Purchase Order ID</th><th>Supplier</th><th>Items</th><th>Amount</th><th>Date</th><th>Supplier email</th><th>Status / inventory</th></tr></thead><tbody>{loading ? <tr><td colSpan="7" className="empty-state">Loading orders...</td></tr> : visibleOrders.length === 0 ? <tr><td colSpan="7" className="empty-state">{historySearch ? `No purchase orders match "${historySearch}" this month.` : 'No purchase orders this month.'}</td></tr> : visibleOrders.map(order => <tr key={order._id}><td><strong>{order.orderNumber}</strong></td><td>{order.supplier?.name || 'Unknown supplier'}</td><td>{order.items.map(item => <span className="order-line" key={`${order._id}-${item.productName}`}>{item.productName} × {item.quantity}</span>)}</td><td>{money(order.total)}</td><td>{new Date(order.orderDate).toLocaleDateString()}</td><td>{order.supplierEmailSent ? <span>Sent{order.supplierEmailSentAt ? ` ${new Date(order.supplierEmailSentAt).toLocaleDateString()}` : ''}</span> : <button type="button" className="btn btn-outline" onClick={() => retryOrderEmail(order)} disabled={retryingOrderId === order._id}>{retryingOrderId === order._id ? 'Sending...' : 'Retry email'}</button>}</td><td>{order.status === 'Awaiting acceptance' ? <button type="button" className="btn btn-primary" onClick={() => acceptDelivery(order)} disabled={acceptingOrderId === order._id}>{acceptingOrderId === order._id ? 'Accepting...' : 'Accept & add to inventory'}</button> : ['Received', 'Rejected'].includes(order.status) ? <span className={`status-select status-${order.status.toLowerCase()}`}>{order.status}</span> : <select className={`status-select status-${order.status.toLowerCase().replaceAll(' ', '-')}`} value={order.status} onChange={event => changeStatus(order._id, event.target.value)}>{statuses.map(item => <option key={item}>{item}</option>)}</select>}</td></tr>)}</tbody></table></div></section>
   </div>;
 };
 export default PurchaseOrders;

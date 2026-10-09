@@ -85,6 +85,17 @@ export const updateProduct = async (id, productData) => {
   return res.json();
 };
 
+export const askInventoryAssistant = async (message, history) => {
+  const res = await fetch(`${API_BASE_URL}/chat`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ message, history }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'The inventory assistant could not reply.');
+  return data.reply;
+};
+
 export const deleteProduct = async (id) => {
   const res = await fetch(`${API_BASE_URL}/products/${id}`, {
     method: 'DELETE',
