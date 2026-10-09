@@ -20,6 +20,7 @@ test('sends Qwen the recent chat and a read-only inventory context', async () =>
   assert.equal(request.body.stream, false);
   assert.equal(request.body.messages.at(-1).content, 'Can you explain which needs restocking?');
   assert.match(request.body.messages[0].content, /read-only inventory assistant/);
+  assert.match(request.body.messages[0].content, /match the requested words against product names/);
   assert.match(request.body.messages[0].content, /"Oil filter"/);
   assert.doesNotMatch(request.body.messages[0].content, /costPrice/);
 });

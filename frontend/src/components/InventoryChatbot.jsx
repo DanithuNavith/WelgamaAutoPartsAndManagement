@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Bot, MessageCircle, Send, X } from 'lucide-react';
 import { askInventoryAssistant, createProduct, updateProduct } from '../services/api';
 import { getInventoryChatIntent, getStockExtremeReply } from '../utils/inventoryChatIntents';
+import { findInventoryProductMatches } from '../utils/inventoryChatProducts';
 import { validateInventoryProduct } from '../utils/inventoryValidation';
 import './InventoryChatbot.css';
 
@@ -34,11 +35,6 @@ const getUpdateField = text => {
 };
 const money = value => `LKR ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const normalize = value => value.trim().toLowerCase().replace(/[?!.,]+$/g, '');
-const singularize = word => word.length > 4 && word.endsWith('ies')
-  ? `${word.slice(0, -3)}y`
-  : word.length > 3 && word.endsWith('s') && !word.endsWith('ss')
-    ? word.slice(0, -1)
-    : word;
 const quantityCondition = text => {
   const amount = text.match(/\b\d+(?:\.\d+)?\b/);
   if (!amount) return null;
@@ -55,15 +51,6 @@ const quantityCondition = text => {
   }
   return null;
 };
-const partSearchTerms = text => {
-  const cleaned = text
-    .replace(/^(?:(?:hi|hello|hey)[, ]+)?(?:can you |could you |please )?(?:tell me |show me |find |search for |do we have |what(?:'s| is| are)? |which |how many )*/i, '')
-    .replace(/\b(?:do we have|do you have|we have|in stock|available|currently|please|the|a|an|parts?|products?|items?|stock|quantity|inventory|for|of|is|are|any|we|you|have|do|does|did|carry|sell|price|prices|cost|details?)\b/gi, ' ')
-    .replace(/[?!.,]/g, ' ')
-    .trim();
-  return cleaned.split(/\s+/).filter(Boolean).map(singularize);
-};
-
 const InventoryChatbot = ({ products, onProductSaved }) => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([{ role: 'assistant', text: initialMessage }]);
@@ -71,20 +58,14 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
   const [flow, setFlow] = useState(null);
   const [busy, setBusy] = useState('');
   const messagesEndRef = useRef(null);
+  const processingMessageRef = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, open]);
 
   const say = text => setMessages(current => [...current, { role: 'assistant', text }]);
-  const findMatches = query => {
-    const terms = partSearchTerms(query);
-    if (!terms.length) return [];
-    return products.filter(product => {
-      const searchableText = `${product.name} ${product.category}`.toLowerCase().split(/\s+/).map(singularize);
-      return terms.every(term => searchableText.some(word => word.includes(term) || term.includes(word)));
-    });
-  };
+  const findMatches = query => findInventoryProductMatches(products, query);
   const startAdd = () => {
     const nextFlow = {
       type: 'add',
@@ -96,6 +77,16 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
   };
 
   const processMessage = async rawMessage => {
+    if (processingMessageRef.current || busy) return;
+    processingMessageRef.current = true;
+    try {
+      await processMessageOnce(rawMessage);
+    } finally {
+      processingMessageRef.current = false;
+    }
+  };
+
+  const processMessageOnce = async rawMessage => {
     const text = rawMessage.trim();
     if (!text || busy) return;
     setMessages(current => [...current, { role: 'user', text }]);
@@ -306,6 +297,7 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
 
   const submitMessage = event => {
     event.preventDefault();
+    if (processingMessageRef.current || busy) return;
     const text = input;
     setInput('');
     processMessage(text);
