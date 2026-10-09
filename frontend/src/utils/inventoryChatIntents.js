@@ -1,5 +1,5 @@
 export const getInventoryChatIntent = text => {
-  if (/^(hi|hello|hey|good morning|good afternoon|good evening)$/.test(text)) return 'greeting';
+  if (/^(hi|hello|hey)( there)?$|^good (morning|afternoon|evening)$/.test(text)) return 'greeting';
 
   if (
     text === 'help'
@@ -10,6 +10,13 @@ export const getInventoryChatIntent = text => {
   if (/\b(lowest|least|fewest|minimum|min)\b/.test(text)) return 'lowest-stock';
   if (/\b(highest|most|maximum|max|greatest)\b/.test(text)) return 'highest-stock';
   return null;
+};
+
+export const getInventoryFallbackReply = text => {
+  if (/\b(stock|inventory|quantity|parts?|products?|items?|price|available|availability|have)\b/.test(text)) {
+    return 'I couldn’t find a matching part in the current inventory. Check the part name, or ask “show me all parts” to see what is available.';
+  }
+  return 'I can help with parts, current stock, prices, and low-stock items. I can also guide you through adding or updating a part. Ask “help” to see examples.';
 };
 
 export const getStockExtremeReply = (products, intent) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bot, MessageCircle, Send, X } from 'lucide-react';
-import { askInventoryAssistant, createProduct, updateProduct } from '../services/api';
-import { getInventoryChatIntent, getStockExtremeReply } from '../utils/inventoryChatIntents';
+import { createProduct, updateProduct } from '../services/api';
+import { getInventoryChatIntent, getInventoryFallbackReply, getStockExtremeReply } from '../utils/inventoryChatIntents';
 import { findInventoryProductMatches } from '../utils/inventoryChatProducts';
 import { validateInventoryProduct } from '../utils/inventoryValidation';
 import './InventoryChatbot.css';
@@ -288,15 +288,7 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
         : `I found ${matches.length} matching parts:\n${matches.slice(0, 10).map(product => `• ${product.name} — ${product.quantity} in stock, ${money(product.price)} each`).join('\n')}`);
       return;
     }
-    setBusy('thinking');
-    try {
-      const reply = await askInventoryAssistant(text, messages.slice(-8));
-      say(reply);
-    } catch (error) {
-      say(error.message || 'Qwen is unavailable. Start Ollama with the qwen2.5:3b model, then try again.');
-    } finally {
-      setBusy('');
-    }
+    say(getInventoryFallbackReply(normalizedText));
   };
 
   const submitMessage = event => {
@@ -313,7 +305,7 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
         <section className="inventory-chat-panel" aria-label="Inventory assistant">
           <header className="inventory-chat-header">
             <span className="inventory-chat-avatar"><Bot size={18} /></span>
-            <div><strong>Inventory assistant</strong><small>Qwen AI · stock lookup and updates</small></div>
+            <div><strong>Inventory assistant</strong><small>Live inventory · no AI connection required</small></div>
             <button type="button" className="inventory-chat-close" aria-label="Close inventory assistant" onClick={() => setOpen(false)}><X size={18} /></button>
           </header>
           <div className="inventory-chat-messages" role="log" aria-live="polite">

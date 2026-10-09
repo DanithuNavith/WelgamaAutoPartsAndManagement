@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { getInventoryChatIntent, getStockExtremeReply } from './inventoryChatIntents.js';
+import { getInventoryChatIntent, getInventoryFallbackReply, getStockExtremeReply } from './inventoryChatIntents.js';
 
 test('recognizes natural questions about the lowest inventory stock', () => {
   assert.equal(getInventoryChatIntent('what is the lowest stock in inventory'), 'lowest-stock');
@@ -19,7 +19,13 @@ test('recognizes questions about chatbot capabilities', () => {
 
 test('recognizes greetings without requiring the AI service', () => {
   assert.equal(getInventoryChatIntent('hi'), 'greeting');
+  assert.equal(getInventoryChatIntent('hi there'), 'greeting');
   assert.equal(getInventoryChatIntent('good morning'), 'greeting');
+});
+
+test('provides useful local replies when no product matches or a question is out of scope', () => {
+  assert.match(getInventoryFallbackReply('do we have toyota aqua rear door'), /couldn’t find a matching part/i);
+  assert.match(getInventoryFallbackReply('tell me a joke'), /help with parts, current stock/i);
 });
 
 test('reports all parts tied for an inventory stock extreme', () => {
