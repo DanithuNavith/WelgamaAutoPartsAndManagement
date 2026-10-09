@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bot, MessageCircle, Send, X } from 'lucide-react';
 import { askInventoryAssistant, createProduct, updateProduct } from '../services/api';
+import { getInventoryChatIntent, getStockExtremeReply } from '../utils/inventoryChatIntents';
 import { validateInventoryProduct } from '../utils/inventoryValidation';
 import './InventoryChatbot.css';
 
-const initialMessage = 'Hi there! I can help you find parts, check stock, and update your inventory. You can ask naturally, like “Do we have any oil filters?” or “Which parts have fewer than 15 in stock?” I’ll always check with you before saving a change.';
+const capabilitiesMessage = 'I can:\n• Find parts and show current quantity and selling price.\n• List inventory, find low/out-of-stock parts, and report the lowest or highest stock.\n• Add a part or update its quantity, selling price, cost price, or low-stock threshold. I’ll show the change and ask you to confirm before saving.\n\nTry “What is the lowest stock in inventory?” or “Do we have oil filters?”';
+const initialMessage = `Hi there! I can help with inventory questions and guided updates. ${capabilitiesMessage}`;
 const addSteps = [
   ['name', 'Great! What should I call this part?'],
   ['category', 'What category does it belong to?'],
@@ -197,8 +199,9 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
       return;
     }
 
-    if (normalizedText === 'help') {
-      say('Of course! Ask me things like “Do we have any oil filters?”, “Which parts have less than 10 in stock?”, or “What is the price of a brake pad?” You can also say you’d like to add or update a part. I’ll guide you and ask before saving anything.');
+    const inventoryIntent = getInventoryChatIntent(normalizedText);
+    if (inventoryIntent === 'capabilities') {
+      say(capabilitiesMessage);
       return;
     }
     const quantityFilter = quantityCondition(normalizedText);
@@ -217,6 +220,10 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
         reply.push('There are no other parts below their low-stock alert level.');
       }
       say(reply.join('\n\n'));
+      return;
+    }
+    if (inventoryIntent === 'lowest-stock' || inventoryIntent === 'highest-stock') {
+      say(getStockExtremeReply(products, inventoryIntent));
       return;
     }
     if (quantityFilter && /\b(stock|parts?|products?|items?|inventory|quantity)\b/.test(normalizedText)) {
@@ -319,7 +326,9 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
             <div ref={messagesEndRef} />
           </div>
           <div className="inventory-chat-suggestions">
+            <button type="button" disabled={busy} onClick={() => processMessage('What is the lowest stock in inventory?')}>Lowest stock</button>
             <button type="button" disabled={busy} onClick={() => processMessage('low stock')}>Low stock</button>
+            <button type="button" disabled={busy} onClick={() => processMessage('What can this bot do?')}>What can you do?</button>
             <button type="button" disabled={busy} onClick={() => processMessage('add part')}>Add part</button>
             <button type="button" disabled={busy} onClick={() => processMessage('update part')}>Update part</button>
           </div>
