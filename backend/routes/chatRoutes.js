@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
     const isUnavailable = error.name === 'AbortError' || error.cause?.code === 'ECONNREFUSED' || error.message.includes('fetch failed');
     res.status(isUnavailable ? 503 : 502).json({
       error: isUnavailable
-        ? 'Qwen is unavailable. Start Ollama with the qwen2.5:3b model, then try again.'
+        ? 'The chatbot backend cannot reach Ollama. Start Ollama on the backend server or set OLLAMA_BASE_URL to an Ollama server the backend can reach.'
         : error.code === 'OLLAMA_HTTP_ERROR' && error.status === 404
           ? 'The Qwen model was not found. Run "ollama pull qwen2.5:3b", then try again.'
         : 'The inventory assistant could not generate a reply. Please try again.'

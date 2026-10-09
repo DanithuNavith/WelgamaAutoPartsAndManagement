@@ -1,4 +1,6 @@
 export const getInventoryChatIntent = text => {
+  if (/^(hi|hello|hey|good morning|good afternoon|good evening)$/.test(text)) return 'greeting';
+
   if (
     text === 'help'
     || /\bwhat\b.*\b(can|could)\b.*\b(you|bot|assistant)\b.*\b(do|help)\b|\bwhat can you do\b/.test(text)

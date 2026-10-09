@@ -191,6 +191,10 @@ const InventoryChatbot = ({ products, onProductSaved }) => {
     }
 
     const inventoryIntent = getInventoryChatIntent(normalizedText);
+    if (inventoryIntent === 'greeting') {
+      say('Hi! I can help check parts, stock levels, prices, and low-stock items. You can also ask me to add or update a part; I’ll ask you to confirm before saving.');
+      return;
+    }
     if (inventoryIntent === 'capabilities') {
       say(capabilitiesMessage);
       return;

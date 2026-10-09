@@ -17,6 +17,11 @@ test('recognizes questions about chatbot capabilities', () => {
   assert.equal(getInventoryChatIntent('help'), 'capabilities');
 });
 
+test('recognizes greetings without requiring the AI service', () => {
+  assert.equal(getInventoryChatIntent('hi'), 'greeting');
+  assert.equal(getInventoryChatIntent('good morning'), 'greeting');
+});
+
 test('reports all parts tied for an inventory stock extreme', () => {
   const products = [
     { name: 'Oil filter', quantity: 2 },
