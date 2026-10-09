@@ -2,7 +2,7 @@ const ignoredWords = new Set([
   'a', 'about', 'any', 'are', 'available', 'can', 'could', 'do', 'does', 'find',
   'for', 'have', 'how', 'i', 'in', 'is', 'it', 'list', 'me', 'of', 'please',
   'price', 'prices', 'product', 'products', 'part', 'parts', 'search', 'show',
-  'stock', 'tell', 'the', 'there', 'what', 'which', 'who', 'with', 'you', 'your'
+  'stock', 'tell', 'the', 'there', 'we', 'what', 'which', 'who', 'with', 'you', 'your'
 ]);
 
 const singularize = word => {
