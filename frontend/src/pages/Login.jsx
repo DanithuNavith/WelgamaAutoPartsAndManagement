@@ -12,7 +12,29 @@ const roles = [
   { key: 'Supplier', label: 'Supplier', icon: Building2, color: '#f59e0b', desc: 'View your orders & deliveries' }
 ];
 
-const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+const isValidEmail = value => {
+  if (typeof value !== 'string') return false;
+  const email = value.trim();
+  if (!email || email.length > 254) return false;
+
+  const atIndex = email.indexOf('@');
+  if (atIndex <= 0 || atIndex !== email.lastIndexOf('@')) return false;
+
+  const localPart = email.slice(0, atIndex);
+  const domain = email.slice(atIndex + 1);
+  if (localPart.length > 64 || !domain || domain.length > 253) return false;
+  if (localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..')) return false;
+  if (!localPart.split('.').every(segment => /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+$/.test(segment))) return false;
+
+  const labels = domain.split('.');
+  if (labels.length < 2 || labels.some(label => (
+    !label || label.length > 63 || !/^[A-Za-z0-9-]+$/.test(label)
+      || !/^[A-Za-z0-9]/.test(label) || !/[A-Za-z0-9]$/.test(label)
+  ))) return false;
+
+  const topLevelDomain = labels[labels.length - 1];
+  return /^[A-Za-z]{2,63}$/.test(topLevelDomain) || /^xn--[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/i.test(topLevelDomain);
+};
 
 const Login = () => {
   const navigate = useNavigate();
@@ -247,7 +269,7 @@ const Login = () => {
               <input
                 type="email" name="email" value={form.email} onChange={handleChange}
                 placeholder={selectedRole === 'Supplier' && !isRegister ? 'Enter your registered supplier email' : 'Enter your email'}
-                required autoComplete="email" aria-invalid={Boolean(error && !isValidEmail(form.email))}
+                required maxLength={254} autoComplete="email" aria-invalid={Boolean(error && !isValidEmail(form.email))}
                 style={{
                   width: '100%', padding: '0.75rem 1rem', borderRadius: '10px',
                   background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)',

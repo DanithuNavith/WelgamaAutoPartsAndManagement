@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
 const authRoutes = require('./authRoutes');
+const { isValidEmail } = require('../utils/emailValidation');
 
 const app = express();
 app.use(express.json());
@@ -60,4 +61,39 @@ test('rejects malformed email addresses for every login role', async () => {
     assert.equal(response.status, 400, `${role} login should reject malformed email`);
     assert.deepEqual(await response.json(), { message: 'Enter a valid email address.' });
   }
+});
+
+test('validates email length, local-part syntax, and domain labels', () => {
+  const validAddresses = [
+    'customer@example.com',
+    ' customer@example.com ',
+    'first.last+parts@example.co.uk',
+    'user_name!tag@example-domain.org',
+    'customer@xn--bcher-kva.example',
+    'user@domain.xn--p1ai'
+  ];
+  const invalidAddresses = [
+    '.leading@example.com',
+    'trailing.@example.com',
+    'two..dots@example.com',
+    'has space@example.com',
+    'has\\slash@example.com',
+    'a'.repeat(65) + '@example.com',
+    'customer@-example.com',
+    'customer@example-.com',
+    'customer@example..com',
+    'customer@example.c',
+    'customer@example.123',
+    `customer@${'a'.repeat(64)}.com`,
+    `${'a'.repeat(64)}@${'b'.repeat(180)}.com`
+  ];
+
+  for (const address of validAddresses) {
+    assert.equal(isValidEmail(address), true, `${address} should be accepted`);
+  }
+  for (const address of invalidAddresses) {
+    assert.equal(isValidEmail(address), false, `${address} should be rejected`);
+  }
+  assert.equal(isValidEmail(null), false);
+  assert.equal(isValidEmail(123), false);
 });

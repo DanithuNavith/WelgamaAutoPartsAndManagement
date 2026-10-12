@@ -5,9 +5,9 @@ const Customer = require('../models/Customer');
 const Technician = require('../models/Technician');
 const Supplier = require('../models/Supplier');
 const { JWT_SECRET, authMiddleware } = require('../middleware/auth');
+const { isValidEmail } = require('../utils/emailValidation');
 
 const router = express.Router();
-const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
       return res.status(403).json({ message: 'Only customer accounts can be registered here.' });
     }
     const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
-    if (!validEmail(normalizedEmail)) {
+    if (!isValidEmail(normalizedEmail)) {
       return res.status(400).json({ message: 'Enter a valid email address.' });
     }
 
@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password, role } = req.body;
     const identifier = typeof email === 'string' ? email.trim().toLowerCase() : '';
-    if (!validEmail(identifier)) {
+    if (!isValidEmail(identifier)) {
       return res.status(400).json({ message: 'Enter a valid email address.' });
     }
 
