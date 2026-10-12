@@ -37,8 +37,8 @@ router.get('/availability', async (req, res) => {
     let bookedTimes = [];
     if (technicianId) {
       const technician = await Technician.findById(technicianId);
-      if (!technician || !['Technician 1', 'Technician 2'].includes(technician.name)) {
-        return res.status(400).json({ error: 'Choose a valid technician.' });
+      if (!technician || technician.status === 'Offline') {
+        return res.status(400).json({ error: 'Choose an active technician.' });
       }
       const range = getDayRange(date);
       const appointments = await JobCard.find({
@@ -97,7 +97,7 @@ router.post('/', async (req, res, next) => {
       const technician = await Technician.findById(req.body.technician);
       const customer = await Customer.findOne({ email: req.user.email });
       if (!customer) return res.status(400).json({ error: 'Customer profile not found' });
-      if (!technician || !['Technician 1', 'Technician 2'].includes(technician.name)) return res.status(400).json({ error: 'Please select Technician 1 or Technician 2' });
+      if (!technician || technician.status === 'Offline') return res.status(400).json({ error: 'Please select an active technician.' });
       const existingAppointment = await JobCard.exists({
         technician: technician._id,
         appointmentDate: {
@@ -132,7 +132,7 @@ router.post('/', async (req, res, next) => {
     if (jobError) return res.status(400).json({ error: jobError });
     if (!mongoose.isValidObjectId(req.body.customer)) return res.status(400).json({ error: 'Select a valid customer.' });
     const technician = await Technician.findById(req.body.technician);
-    if (!technician || !['Technician 1', 'Technician 2'].includes(technician.name)) return res.status(400).json({ error: 'Assign the job to Technician 1 or Technician 2' });
+    if (!technician || technician.status === 'Offline') return res.status(400).json({ error: 'Assign the job to an active technician.' });
     const appointment = validateCustomerAppointment(req.body.appointmentDate);
     if (appointment.error) return res.status(400).json({ error: appointment.error });
     const dayRange = getDayRange(appointment.date);
@@ -188,8 +188,8 @@ router.put('/:id', requireRole('Owner'), async (req, res) => {
 
       const technicianId = allowed.technician || existingJob.technician;
       const technician = await Technician.findById(technicianId);
-      if (!technician || !['Technician 1', 'Technician 2'].includes(technician.name)) {
-        return res.status(400).json({ error: 'Please select Technician 1 or Technician 2' });
+      if (!technician || technician.status === 'Offline') {
+        return res.status(400).json({ error: 'Please select an active technician.' });
       }
 
       const dayRange = getDayRange(appointment.date);

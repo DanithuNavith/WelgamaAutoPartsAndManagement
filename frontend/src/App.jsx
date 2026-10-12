@@ -13,6 +13,7 @@ import TechnicianDashboard from './pages/TechnicianDashboard';
 import Suppliers from './pages/Suppliers';
 import SupplierDashboard from './pages/SupplierDashboard';
 import PurchaseOrders from './pages/PurchaseOrders';
+import TechnicianProfiles from './pages/TechnicianProfiles';
 import BrandLogo from './components/BrandLogo';
 import { Moon, Sun } from 'lucide-react';
 import { API_BASE_URL } from './services/apiBase';
@@ -175,6 +176,7 @@ function App() {
           <Route path="sales" element={<Sales />} />
           <Route path="repairs" element={<Repairs />} />
           <Route path="customers" element={<Customers />} />
+          <Route path="technician-profiles" element={<TechnicianProfiles />} />
           <Route path="suppliers" element={<Suppliers />} />
           <Route path="purchase-orders" element={<PurchaseOrders />} />
         </Route>

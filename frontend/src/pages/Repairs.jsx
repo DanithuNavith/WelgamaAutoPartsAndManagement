@@ -370,7 +370,7 @@ const Repairs = () => {
     </select>
     <select className="input" aria-label="Filter by technician" value={technicianFilter} onChange={event => setTechnicianFilter(event.target.value)}>
     <option value="ALL">All technicians</option>
-    {technicians.filter(tech => ['Technician 1', 'Technician 2'].includes(tech.name)).map(tech => <option key={tech._id} value={tech._id}>{tech.name}</option>)}
+    {technicians.map(tech => <option key={tech._id} value={tech._id}>{tech.name}</option>)}
     </select>
     <select className="input" aria-label="Filter by priority" value={priorityFilter} onChange={event => setPriorityFilter(event.target.value)}>
     <option value="ALL">All priorities</option>
@@ -510,7 +510,7 @@ const Repairs = () => {
     </span>
     <div>
     <h4>{editingJob ? 'Edit job card' : 'Create digital job card'}</h4>
-    <p>Assign the repair to Technician 1 or Technician 2.</p>
+    <p>Assign the repair to an active technician.</p>
     </div>
     </div>
     <form noValidate className="job-form" onSubmit={submitJob}>
@@ -545,7 +545,7 @@ const Repairs = () => {
     {jobFieldErrors.appointmentTime && <small className="field-validation-error">{jobFieldErrors.appointmentTime}</small>}
     </label>
     <label>Assign technician<select required className={`input${jobFieldErrors.technician ? ' input-validation-error' : ''}`} value={jobForm.technician} aria-invalid={Boolean(jobFieldErrors.technician)} onChange={event => updateJobField('technician', event.target.value)}>
-    <option value="">Select technician</option>{technicians.filter(tech => ['Technician 1', 'Technician 2'].includes(tech.name)).map(tech => <option key={tech._id} value={tech._id}>{tech.name} · {tech.status}</option>)}</select>
+    <option value="">Select technician</option>{technicians.filter(tech => tech.status !== 'Offline').map(tech => <option key={tech._id} value={tech._id}>{tech.name} · {tech.status}</option>)}</select>
     {jobFieldErrors.technician && <small className="field-validation-error">{jobFieldErrors.technician}</small>}
     </label>
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Calendar, Car, ChevronLeft, ChevronRight, Filter, LogOut, Package, Search, User, Wrench, X } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Filter, LogOut, Package, Search, User, Wrench, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
 import { API_BASE_URL } from '../services/apiBase';
@@ -131,7 +131,7 @@ const CustomerDashboard = () => {
         throw new Error('The server returned an unexpected response while loading parts and technicians.');
       }
       setProducts(parts.filter(part => part.quantity > 0));
-      setTechnicians(staff.filter(technician => ['Technician 1', 'Technician 2'].includes(technician.name)));
+      setTechnicians(staff.filter(technician => technician.status !== 'Offline'));
     }).catch(loadError => setError(loadError.message || 'Could not load available parts and technicians.'));
   }, []);
 
@@ -221,7 +221,7 @@ const CustomerDashboard = () => {
           </div><button className="customer-rail-button customer-rail-next" type="button" aria-label="Next parts" onClick={() => document.querySelector('.customer-product-rail')?.scrollBy({ left: 320, behavior: 'smooth' })}><ChevronRight size={19} /></button></div>
         </section>
 
-        <section style={styles.actions}><div><p style={styles.kicker}>TECHNICIAN BOOKING</p><h2>Choose a repair time</h2><p style={styles.muted}>Book an available time slot with Technician 1 or Technician 2.</p></div><button onClick={() => setShowRepair(true)} style={styles.primaryButton}><Calendar size={17} /> Book technician</button></section>
+        <section style={styles.actions}><div><p style={styles.kicker}>TECHNICIAN BOOKING</p><h2>Choose a repair time</h2><p style={styles.muted}>Book an available time slot with one of our technicians.</p></div><button onClick={() => setShowRepair(true)} style={styles.primaryButton}><Calendar size={17} /> Book technician</button></section>
       </main>
 
       {showRepair && <Modal title="Book a repair appointment" onClose={() => setShowRepair(false)}>
@@ -245,7 +245,7 @@ const CustomerDashboard = () => {
                 setAvailability({ ...emptyAvailability, loading: false });
               }
             }} style={{ ...styles.input, borderColor: fieldErrors.technician ? '#f87171' : undefined }}>
-              <option value="">Choose Technician 1 or 2</option>
+              <option value="">Choose a technician</option>
               {technicians.map(technician => <option key={technician._id} value={technician._id}>{technician.name} · {technician.status}</option>)}
             </select>
             {fieldErrors.technician && <small style={{ display: 'block', color: '#fca5a5', marginTop: '0.35rem' }}>{fieldErrors.technician}</small>}

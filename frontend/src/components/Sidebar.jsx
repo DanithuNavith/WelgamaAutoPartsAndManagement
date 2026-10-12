@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Building2, ClipboardList, LayoutDashboard, Package, ShoppingCart, Wrench, Users } from 'lucide-react';
+import { Building2, ClipboardList, LayoutDashboard, Package, ShoppingCart, Wrench, Users, UserRoundCog } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
 const Sidebar = () => {
@@ -11,6 +11,7 @@ const Sidebar = () => {
     { name: 'Sales & Billing', path: '/sales', icon: ShoppingCart },
     { name: 'Repairs', path: '/repairs', icon: Wrench },
     { name: 'Customers', path: '/customers', icon: Users },
+    { name: 'Technician Profiles', path: '/technician-profiles', icon: UserRoundCog },
     { name: 'Suppliers', path: '/suppliers', icon: Building2 },
     { name: 'Purchase Orders', path: '/purchase-orders', icon: ClipboardList },
   ];

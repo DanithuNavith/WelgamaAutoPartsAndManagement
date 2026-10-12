@@ -19,7 +19,7 @@ Set `MONGO_URI` in the backend environment to the MongoDB Atlas connection strin
 
 ## Owner login and customer registration
 
-Only customers can self-register. Owner, technician, and supplier accounts cannot be created through the public registration endpoint. The backend provisions its owner account using `OWNER_EMAIL` and `OWNER_PASSWORD`; `OWNER_EMAIL` defaults to `welgamashop@gmail.com`, and `OWNER_PASSWORD` must be set as a private backend environment variable. Set both variables in Hostinger's Node.js app settings for deployment, or copy `backend/.env.example` to `backend/.env` and set the private password for local development. The configured owner account is synchronized when the backend connects to MongoDB, including updating an existing owner login. Never commit or expose the password.
+The login page is sign-in only; it does not offer public registration for customers or technicians. The backend registration endpoint remains restricted to customer accounts. Owner-managed technician profiles and login accounts are created in **Technician Profiles**; owner and supplier accounts are managed separately. The backend provisions its owner account using `OWNER_EMAIL` and `OWNER_PASSWORD`; `OWNER_EMAIL` defaults to `welgamashop@gmail.com`, and `OWNER_PASSWORD` must be set as a private backend environment variable. Set both variables in Hostinger's Node.js app settings for deployment, or copy `backend/.env.example` to `backend/.env` and set the private password for local development. The configured owner account is synchronized when the backend connects to MongoDB, including updating an existing owner login. Never commit or expose the password.
 
 ## Deploying on Hostinger
 
