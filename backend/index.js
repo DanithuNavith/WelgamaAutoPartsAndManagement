@@ -23,6 +23,7 @@ const Technician = require('./models/Technician');
 const JobCard = require('./models/JobCard');
 const Sale = require('./models/Sale');
 const { removeLegacyTechnicianMetrics } = require('./services/removeLegacyTechnicianMetrics');
+const { backfillJobCardNames } = require('./services/backfillJobCardNames');
 
 const app = express();
 app.use(cors());
@@ -131,6 +132,10 @@ const connectToMongo = async () => {
         console.log(`Removed legacy technician metrics from ${removedDocuments} database records`);
       }
       legacyTechnicianMetricsRemoved = true;
+    }
+    const backfilledJobCards = await backfillJobCardNames(JobCard);
+    if (backfilledJobCards > 0) {
+      console.log(`Added readable customer and technician names to ${backfilledJobCards} job cards`);
     }
     if (!loginAccountsInitialized) {
       await ensureLoginAccounts();

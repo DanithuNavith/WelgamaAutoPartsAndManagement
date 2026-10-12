@@ -113,6 +113,7 @@ router.post('/', async (req, res, next) => {
         customerPhone: customer.phone,
         customerEmail: customer.email,
         customerAddress: customer.address,
+        technicianName: technician.name,
         registrationNumber: req.body.licensePlate,
         licensePlate: req.body.licensePlate,
         vehicleMake: req.body.vehicleMake || 'Not provided',
@@ -165,6 +166,7 @@ router.post('/', async (req, res, next) => {
       customerPhone: customer.phone,
       customerEmail: customer.email,
       customerAddress: customer.address,
+      technicianName: technician.name,
       registrationNumber: vehicle.licensePlate.trim(),
       licensePlate: vehicle.licensePlate.trim(),
       vehicleMake: String(vehicle.make || '').trim() || 'Not provided',
@@ -211,6 +213,7 @@ router.put('/:id', requireRole('Owner'), async (req, res) => {
 
       allowed.appointmentDate = appointment.appointmentDate;
       allowed.technician = technician._id;
+      allowed.technicianName = technician.name;
     }
     const job = await JobCard.findByIdAndUpdate(req.params.id, allowed, { new: true, runValidators: true }).populate('technician customer').populate('partsUsed.product');
     res.json(job);

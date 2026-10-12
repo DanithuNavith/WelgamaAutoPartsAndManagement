@@ -7,6 +7,7 @@ const jobCardSchema = new mongoose.Schema({
   customerPhone: { type: String },
   customerEmail: { type: String },
   customerAddress: { type: String },
+  technicianName: { type: String },
   registrationNumber: { type: String, required: true },
   vehicleMake: { type: String, required: true },
   vehicleModel: { type: String, required: true },

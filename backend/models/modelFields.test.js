@@ -37,6 +37,8 @@ test('repair invoices retain the billed labor cost while obsolete metrics are no
   assert.equal(JobCard.schema.path('technicianHours'), undefined);
   assert.equal(JobCard.schema.path('technicianRate'), undefined);
   assert.equal(JobCard.schema.path('estimatedCost'), undefined);
+  assert.equal(JobCard.schema.path('customerName').instance, 'String');
+  assert.equal(JobCard.schema.path('technicianName').instance, 'String');
   assert.equal(Technician.schema.path('hourlyRate'), undefined);
 
   const partsSale = new Sale({ billType: 'PARTS', items: [], subtotal: 0, tax: 0, total: 0 });

@@ -7,7 +7,7 @@ Customers can book one-hour repair appointments in hourly slots from 9:00 a.m. t
 
 The holiday calendar is provided by the `date-holidays` backend dependency. Update that dependency periodically to receive calendar data updates.
 
-Customer records have a `customerType` field: public customer registrations are stored as `Portal`, while customers added by staff are stored as `Walk-in`. Repair job cards track diagnosis, notes, and parts used; owners enter the final labor charge when billing a completed repair. Technician hours, hourly rates, and estimated costs are not collected or stored.
+Customer records have a `customerType` field: public customer registrations are stored as `Portal`, while customers added by staff are stored as `Walk-in`. Repair job cards keep customer and technician ObjectId references for relationships, as well as readable `customerName` and `technicianName` fields for database inspection. They track diagnosis, notes, and parts used; owners enter the final labor charge when billing a completed repair. Technician hours, hourly rates, and estimated costs are not collected or stored.
 
 ## Repair invoice email
 
