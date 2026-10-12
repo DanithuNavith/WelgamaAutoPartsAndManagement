@@ -7,6 +7,8 @@ Customers can book one-hour repair appointments in hourly slots from 9:00 a.m. t
 
 The holiday calendar is provided by the `date-holidays` backend dependency. Update that dependency periodically to receive calendar data updates.
 
+Customer records have a `customerType` field: public customer registrations are stored as `Portal`, while customers added by staff are stored as `Walk-in`. Repair job cards store the estimate and technician-entered hours/rate; creating the repair bill copies those values and the final parts/labor costs into the invoice record. Parts-only invoices do not store repair-only fields.
+
 ## Repair invoice email
 
 When an owner creates or changes a bill for a completed repair in **Sales & Billing**, the system emails the customer a PDF copy of the invoice. The email address on the customer profile is used first, with the job card email as a fallback. A failed delivery is shown on the invoice with a retry action.
@@ -15,14 +17,20 @@ When an owner creates or changes a bill for a completed repair in **Sales & Bill
 
 Set `MONGO_URI` in the backend environment to the MongoDB Atlas connection string. The backend also accepts `MONGODB_URI` for hosting integrations that provide that variable name. Include a database name such as `welgama-auto` in the URI path, and URL-encode special characters in the database user's password. Set the variable in Hostinger's Node.js app settings for deployment; do not commit a real connection string or database password.
 
+## Owner login and customer registration
+
+Only customers can self-register. Owner, technician, and supplier accounts cannot be created through the public registration endpoint. The backend provisions its owner account using `OWNER_EMAIL` and `OWNER_PASSWORD`; `OWNER_EMAIL` defaults to `welgamashop@gmail.com`, and `OWNER_PASSWORD` must be set as a private backend environment variable. Set both variables in Hostinger's Node.js app settings for deployment, or copy `backend/.env.example` to `backend/.env` and set the private password for local development. The configured owner account is synchronized when the backend connects to MongoDB, including updating an existing owner login. Never commit or expose the password.
+
 ## Deploying on Hostinger
 
 The React website and Express API are served together by the Node.js application, so the main domain displays the website while API requests use the same domain's `/api` paths.
 
 1. In the frontend folder, install dependencies and build the site with `npm.cmd ci` and `npm.cmd run build` on Windows, or `npm ci` and `npm run build` on macOS/Linux. The build writes the static website into `backend/public`.
 2. Deploy the backend as a Hostinger Node.js application with application root `backend` and startup file `index.js`. Ensure the generated `backend/public` directory is included in the deployed source.
-3. Add `MONGO_URI` (or `MONGODB_URI`) in the app's environment variables and allow Hostinger's outbound IP in MongoDB Atlas Network Access. The backend listens on Hostinger's `PORT`; `/api/health` reports whether its MongoDB connection is ready.
+3. Add `MONGO_URI` (or `MONGODB_URI`), `OWNER_EMAIL`, and `OWNER_PASSWORD` in the app's environment variables and allow Hostinger's outbound IP in MongoDB Atlas Network Access. The backend listens on Hostinger's `PORT`; `/api/health` reports whether its MongoDB connection is ready.
 4. Point the main domain to this Node.js application and enable HTTPS. Open the main domain to see the site; open `/api/health` to check the API/database status.
+
+The site suppresses the browser's right-click context menu as a deterrent. This does not prevent visitors from viewing downloaded frontend code using developer tools, browser source views, or other tools; never put credentials or private logic in frontend code.
 
 ### Qwen inventory chatbot
 

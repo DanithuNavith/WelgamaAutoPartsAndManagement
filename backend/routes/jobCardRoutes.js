@@ -227,6 +227,18 @@ router.patch('/:id/progress', requireRole('Technician'), async (req, res) => {
       const diagnosisText = typeof req.body.diagnosis === 'string' ? req.body.diagnosis.trim() : '';
       if (!diagnosisText) return res.status(400).json({ error: 'Diagnosis is required before completing the job.' });
       if (diagnosisText.length < 10) return res.status(400).json({ error: 'Diagnosis must be at least 10 characters.' });
+      if (!Number.isFinite(Number(req.body.technicianHours)) || Number(req.body.technicianHours) <= 0) {
+        return res.status(400).json({ error: 'Enter actual technician hours greater than zero before completing the job.' });
+      }
+      if (!Number.isFinite(Number(req.body.technicianRate)) || Number(req.body.technicianRate) < 0) {
+        return res.status(400).json({ error: 'Enter a valid non-negative technician rate.' });
+      }
+    }
+    for (const field of ['technicianHours', 'technicianRate']) {
+      if (req.body[field] !== undefined
+        && (!Number.isFinite(Number(req.body[field])) || Number(req.body[field]) < 0)) {
+        return res.status(400).json({ error: `${field === 'technicianHours' ? 'Technician hours' : 'Technician rate'} must be a non-negative number.` });
+      }
     }
     if (req.body.diagnosis !== undefined) job.diagnosis = req.body.diagnosis;
     if (req.body.repairNotes !== undefined) job.repairNotes = req.body.repairNotes;

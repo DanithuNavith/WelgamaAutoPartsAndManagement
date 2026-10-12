@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
   try {
     const validationError = validateCustomerInput(req.body);
     if (validationError) return res.status(400).json({ error: validationError });
-    const customer = new Customer(req.body);
+    const customer = new Customer({ ...req.body, customerType: 'Walk-in' });
     await customer.save();
     res.status(201).json(customer);
   } catch (err) {
@@ -30,7 +30,8 @@ router.put('/:id', async (req, res) => {
   try {
     const validationError = validateCustomerInput(req.body);
     if (validationError) return res.status(400).json({ error: validationError });
-    const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, {
+    const { name, phone, email, address, vehicles } = req.body;
+    const customer = await Customer.findByIdAndUpdate(req.params.id, { name, phone, email, address, vehicles }, {
       new: true,
       runValidators: true
     });

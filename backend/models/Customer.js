@@ -5,6 +5,7 @@ const customerSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   email: { type: String },
   address: { type: String },
+  customerType: { type: String, enum: ['Portal', 'Walk-in'] },
   vehicles: [{
     make: String,
     model: String,

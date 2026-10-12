@@ -139,6 +139,7 @@ const Customers = () => {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Type</th>
                 <th>Phone</th>
                 <th>Email</th>
                 <th>Address</th>
@@ -148,11 +149,12 @@ const Customers = () => {
             </thead>
             <tbody>
               {customers.length === 0 ? (
-                <tr><td colSpan="6">No customers found.</td></tr>
+                <tr><td colSpan="7">No customers found.</td></tr>
               ) : (
                 customers.map(c => (
                   <tr key={c._id}>
                     <td>{c.name}</td>
+                    <td>{c.customerType || 'Existing'}</td>
                     <td>{c.phone}</td>
                     <td>{c.email || 'N/A'}</td>
                     <td>{c.address || 'N/A'}</td>

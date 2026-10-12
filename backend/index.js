@@ -66,15 +66,23 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
+const ownerEmail = (process.env.OWNER_EMAIL || 'welgamashop@gmail.com').trim().toLowerCase();
+const ownerPassword = process.env.OWNER_PASSWORD;
+if (!ownerPassword) {
+  throw new Error('OWNER_PASSWORD must be set in the backend environment before starting the server.');
+}
+
 const ensureLoginAccounts = async () => {
   const accounts = [
-    { name: 'Welgama Owner', email: 'owner@welgama.com', password: 'Owner@12345', role: 'Owner' },
+    { name: 'Welgama Owner', email: ownerEmail, password: ownerPassword, role: 'Owner' },
     { name: 'Technician 1', email: 'technician1@welgama.com', password: 'Tech1@12345', role: 'Technician' },
     { name: 'Technician 2', email: 'technician2@welgama.com', password: 'Tech2@12345', role: 'Technician' }
   ];
 
   for (const account of accounts) {
-    let user = await User.findOne({ email: account.email });
+    let user = account.role === 'Owner'
+      ? await User.findOne({ role: 'Owner' })
+      : await User.findOne({ email: account.email });
     if (!user) user = new User(account);
     else {
       user.name = account.name;

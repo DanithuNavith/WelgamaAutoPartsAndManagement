@@ -51,6 +51,11 @@ export const validateCustomerForm = (customer, { requireAddress = false, require
 
 export const validateJobForm = (job, customer, now = new Date(), { allowPastAppointment = false } = {}) => {
   const errors = {};
+  if (job.estimatedCost !== '' && job.estimatedCost !== undefined) {
+    const estimatedCost = Number(job.estimatedCost);
+    if (!Number.isFinite(estimatedCost)) errors.estimatedCost = 'Enter a valid estimated cost.';
+    else if (estimatedCost < 0) errors.estimatedCost = 'Estimated cost must be zero or greater.';
+  }
   if (!job.customer) errors.customer = 'Select a customer.';
   if (job.vehicleIndex === '' || job.vehicleIndex === null || job.vehicleIndex === undefined) errors.vehicleIndex = 'Select a vehicle.';
 

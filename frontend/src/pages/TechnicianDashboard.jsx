@@ -17,6 +17,15 @@ const validateDiagnosis = value => {
   if (trimmed.length < 10) return 'Diagnosis must be at least 10 characters.';
   return '';
 };
+const validateTechnicianMetrics = form => {
+  if (!Number.isFinite(Number(form.technicianHours)) || Number(form.technicianHours) <= 0) {
+    return 'Enter actual technician hours greater than zero before completing the job.';
+  }
+  if (!Number.isFinite(Number(form.technicianRate)) || Number(form.technicianRate) < 0) {
+    return 'Enter a valid non-negative technician rate.';
+  }
+  return '';
+};
 const jobColumns = [
   { id: 'assigned', title: 'Assigned', icon: ClipboardList, statuses: ['ASSIGNED', 'Pending'] },
   { id: 'in-progress', title: 'In progress', icon: Clock, statuses: ['IN_PROGRESS', 'In Progress'] },
@@ -111,8 +120,9 @@ const TechnicianDashboard = () => {
   const updateJob = async () => {
     const completionStatus = nextStatus[activeJob.status];
     const diagnosisError = completionStatus === 'COMPLETED' ? validateDiagnosis(form.diagnosis) : '';
-    if (diagnosisError) {
-      setError(diagnosisError);
+    const metricsError = completionStatus === 'COMPLETED' ? validateTechnicianMetrics(form) : '';
+    if (diagnosisError || metricsError) {
+      setError(diagnosisError || metricsError);
       return;
     }
     const response = await fetch(`${API}/jobCards/${activeJob._id}/progress`, {
@@ -242,6 +252,11 @@ const TechnicianDashboard = () => {
           <label className="tech-label">Repair notes
             <textarea className="input" rows="3" value={form.repairNotes} onChange={event => setForm({ ...form, repairNotes: event.target.value })} />
           </label>
+          <div className="billing-select-grid">
+            <label>Technician hours<input className="input" type="number" min="0" step="0.25" value={form.technicianHours} onChange={event => setForm({ ...form, technicianHours: event.target.value })} /></label>
+            <label>Technician rate (Rs./hour)<input className="input" type="number" min="0" step="0.01" value={form.technicianRate} onChange={event => setForm({ ...form, technicianRate: event.target.value })} /></label>
+          </div>
+          {nextStatus[activeJob.status] === 'COMPLETED' && validateTechnicianMetrics(form) && <small className="portal-error" style={{ display: 'block', marginTop: '0.5rem' }}>{validateTechnicianMetrics(form)}</small>}
           <form className="parts-form" onSubmit={addPart}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 0 }}>
               <input
@@ -301,7 +316,7 @@ const TechnicianDashboard = () => {
               </div>
             ))}
           </div>}
-          <button className="btn btn-primary tech-save" disabled={nextStatus[activeJob.status] === 'COMPLETED' && Boolean(validateDiagnosis(form.diagnosis))} onClick={updateJob}>Move to {nextStatus[activeJob.status]}</button>
+          <button className="btn btn-primary tech-save" disabled={nextStatus[activeJob.status] === 'COMPLETED' && Boolean(validateDiagnosis(form.diagnosis) || validateTechnicianMetrics(form))} onClick={updateJob}>Move to {nextStatus[activeJob.status]}</button>
         </>}
       </div>
     </div>}

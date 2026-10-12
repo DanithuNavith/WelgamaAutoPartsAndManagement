@@ -20,7 +20,7 @@ const Login = () => {
 
   const [isRegister, setIsRegister] = useState(searchParams.get('tab') === 'register' && location.pathname !== '/supplier/login');
   const [selectedRole, setSelectedRole] = useState(
-    roles.some(role => role.key === requestedRole)
+    searchParams.get('tab') !== 'register' && roles.some(role => role.key === requestedRole)
       ? requestedRole
       : location.pathname === '/supplier/login' ? 'Supplier' : 'Customer'
   );
@@ -169,12 +169,12 @@ const Login = () => {
           </p>
 
           {/* Role Selector */}
-          <div style={{ marginBottom: '1.5rem' }}>
+          {!isRegister && <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>
               Login as
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isRegister ? 3 : 4}, 1fr)`, gap: '0.5rem' }}>
-              {roles.filter(role => !isRegister || role.key !== 'Supplier').map(role => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+              {roles.map(role => (
                 <button key={role.key} onClick={() => setSelectedRole(role.key)} style={{
                   padding: '0.75rem 0.5rem', borderRadius: '12px', cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem',
@@ -191,7 +191,10 @@ const Login = () => {
             <p style={{ fontSize: '0.75rem', color: '#475569', marginTop: '0.5rem', textAlign: 'center' }}>
               {activeRoleData.desc}
             </p>
-          </div>
+          </div>}
+          {isRegister && <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0 0 1.5rem' }}>
+            Customer accounts can register here. Owner, technician, and supplier accounts are managed separately.
+          </p>}
 
           {/* Error / Success messages */}
           {error && (
@@ -317,7 +320,7 @@ const Login = () => {
           {/* Toggle Login/Register */}
           {selectedRole === 'Supplier' && !isRegister ? <p className="supplier-login-help">Supplier accounts are created by the owner. Sign in with the registered email address and password the owner provided.</p> : <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.85rem' }}>
             {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button onClick={() => { const nextIsRegister = !isRegister; setIsRegister(nextIsRegister); if (nextIsRegister && selectedRole === 'Supplier') setSelectedRole('Customer'); setError(''); setSuccess(''); }} style={{
+            <button onClick={() => { const nextIsRegister = !isRegister; setIsRegister(nextIsRegister); if (nextIsRegister) setSelectedRole('Customer'); setError(''); setSuccess(''); }} style={{
               background: 'none', border: 'none', color: activeRoleData.color,
               cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
               transition: 'opacity 0.2s'

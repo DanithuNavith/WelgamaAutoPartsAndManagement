@@ -2,6 +2,7 @@ const express = require('express');
 const Sale = require('../models/Sale');
 const Product = require('../models/Product');
 const JobCard = require('../models/JobCard');
+const Customer = require('../models/Customer');
 const { sendRepairInvoiceEmail } = require('../services/repairInvoiceEmail');
 const { calculatePartsInvoiceTotal, sendPartsInvoiceEmail } = require('../services/partsInvoiceEmail');
 const { calculatePartsNetProfit } = require('../services/partsProfit');
@@ -41,6 +42,19 @@ const deliverRepairInvoice = async (invoice, job) => {
 
 const deliverPartsInvoice = async invoice => {
   const recipient = String(invoice.customerEmail || '').trim();
+  if (!recipient) {
+    const error = 'Customer has no email address; the bill was created but not emailed.';
+    invoice.invoiceEmailSentAt = null;
+    invoice.invoiceEmailTo = '';
+    invoice.invoiceEmailError = error;
+    try {
+      await invoice.save();
+      return { sent: false, error };
+    } catch (saveError) {
+      console.error(`Could not save parts invoice email status for ${invoice._id}:`, saveError.message);
+      return { sent: false, error, statusError: 'Invoice email status could not be saved. Check the invoice history before retrying.' };
+    }
+  }
   let emailStatus;
   try {
     await sendPartsInvoiceEmail(invoice, recipient);
@@ -136,9 +150,11 @@ router.post('/', async (req, res) => {
 router.post('/parts', async (req, res) => {
   const updatedProducts = [];
   try {
-    const customerName = String(req.body.customerName || '').trim();
-    const customerPhone = String(req.body.customerPhone || '').trim();
-    const customerEmail = String(req.body.customerEmail || '').trim().toLowerCase();
+    const customer = await Customer.findById(req.body.customerId);
+    if (!customer) return res.status(404).json({ error: 'Select a registered customer before creating the bill.' });
+    const customerName = customer.name;
+    const customerPhone = customer.phone;
+    const customerEmail = String(customer.email || '').trim().toLowerCase();
     const customerError = validatePartsCustomer({ customerName, customerPhone, customerEmail });
     if (customerError) return res.status(400).json({ error: customerError });
     if (!Array.isArray(req.body.items) || req.body.items.length === 0) {
@@ -178,6 +194,7 @@ router.post('/parts', async (req, res) => {
     const total = calculatePartsInvoiceTotal(subtotal, discount);
     const invoice = await Sale.create({
       billType: 'PARTS',
+      customer: customer._id,
       customerName,
       customerPhone,
       customerEmail,
@@ -239,8 +256,12 @@ router.post('/repair/:jobId', async (req, res) => {
     const invoiceData = {
       jobCard: job._id, billType: 'REPAIR', customer: job.customer?._id || job.customer,
       vehicle: { make: job.vehicleMake, model: job.vehicleModel, year: job.vehicleYear, licensePlate: job.registrationNumber || job.licensePlate },
-      technician: job.technician?._id || job.technician, technicianCost,
-      partsCost, technicianCost, items: invoiceItems, subtotal, discount, tax: 0, total: repairCost,
+      technician: job.technician?._id || job.technician,
+      technicianHours: Number(job.technicianHours || 0),
+      technicianRate: Number(job.technicianRate || 0),
+      estimatedCost: Number(job.estimatedCost || 0),
+      technicianCost,
+      partsCost, items: invoiceItems, subtotal, discount, tax: 0, total: repairCost,
       netProfit: calculatePartsNetProfit(invoiceItems, discount, subtotal),
       paymentStatus: req.body.paymentStatus === 'Paid' ? 'Paid' : 'Pending'
     };
@@ -249,6 +270,11 @@ router.post('/repair/:jobId', async (req, res) => {
       || existingInvoice.total !== invoiceData.total
       || existingInvoice.discount !== invoiceData.discount
       || existingInvoice.paymentStatus !== invoiceData.paymentStatus
+      || existingInvoice.technicianCost !== invoiceData.technicianCost
+      || existingInvoice.partsCost !== invoiceData.partsCost
+      || existingInvoice.technicianHours !== invoiceData.technicianHours
+      || existingInvoice.technicianRate !== invoiceData.technicianRate
+      || existingInvoice.estimatedCost !== invoiceData.estimatedCost
       || JSON.stringify(existingInvoice.items.map(item => ({
         product: String(item.product || ''),
         productName: item.productName,

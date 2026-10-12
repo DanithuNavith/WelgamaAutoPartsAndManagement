@@ -217,7 +217,7 @@ const Home = () => {
                 <span>Welgama Auto Parts &amp; Repairs, Kahanthota Road, Malabe, Western Province, Sri Lanka</span>
               </a>
               <a href="tel:+94778047020"><Phone size={15} aria-hidden="true" /><span>+94 77 804 7020</span></a>
-              <a href="mailto:info@welgamaauto.lk"><Mail size={15} aria-hidden="true" /><span>info@welgamaauto.lk</span></a>
+              <a href="mailto:welgamashop@gmail.com"><Mail size={15} aria-hidden="true" /><span>welgamashop@gmail.com</span></a>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../services/apiBase';
 
 const API = API_BASE_URL;
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}` });
-const blankJob = { customer: '', vehicleIndex: '', issueDescription: '', appointmentDate: '', appointmentTime: '', priority: 'Medium', repairNotes: '', technician: '' };
+const blankJob = { customer: '', vehicleIndex: '', issueDescription: '', appointmentDate: '', appointmentTime: '', priority: 'Medium', estimatedCost: '', repairNotes: '', technician: '' };
 const emptyAvailability = { loading: false, holiday: null, availableTimes: [], error: '' };
 const getSriLankaToday = () => {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -219,6 +219,7 @@ const Repairs = () => {
     }
     const payload = {
       ...jobForm,
+      estimatedCost: jobForm.estimatedCost === '' ? undefined : Number(jobForm.estimatedCost),
       appointmentDate: `${jobForm.appointmentDate}T${jobForm.appointmentTime}`,
       customer: customer._id,
       customerName: customer.name,
@@ -268,6 +269,7 @@ const Repairs = () => {
       issueDescription: job.issueDescription,
       ...getSriLankaDateTime(job.appointmentDate),
       priority: job.priority || 'Medium',
+      estimatedCost: job.estimatedCost ?? '',
       repairNotes: job.repairNotes || '',
       technician: job.technician?._id || ''
     });
@@ -533,6 +535,9 @@ const Repairs = () => {
     <option>High</option>
     <option>Urgent</option>
     </select>
+    </label>
+    <label>Estimated cost (Rs.)<input className={`input${jobFieldErrors.estimatedCost ? ' input-validation-error' : ''}`} type="number" min="0" step="0.01" value={jobForm.estimatedCost} aria-invalid={Boolean(jobFieldErrors.estimatedCost)} onChange={event => updateJobField('estimatedCost', event.target.value)} placeholder="Optional estimate" />
+    {jobFieldErrors.estimatedCost && <small className="field-validation-error">{jobFieldErrors.estimatedCost}</small>}
     </label>
     <label>Available one-hour time slot<select required className={`input${jobFieldErrors.appointmentTime ? ' input-validation-error' : ''}`} value={jobForm.appointmentTime} aria-invalid={Boolean(jobFieldErrors.appointmentTime)} disabled={!jobForm.appointmentDate || !jobForm.technician || availability.loading || Boolean(availability.holiday) || Boolean(availability.error) || (!availability.availableTimes.length && !retainingExistingAppointment)} onChange={event => updateJobField('appointmentTime', event.target.value)}>
     <option value="">Select a time slot</option>{selectableAppointmentTimes.map(time => <option key={time} value={time}>{formatTimeSlot(time)}{retainingExistingAppointment && time === jobForm.appointmentTime && !availability.availableTimes.includes(time) ? ' (current booking)' : ''}</option>)}

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BadgeDollarSign, BarChart3, Check, ClipboardList, FileText, History, Mail, Package, Percent, Plus, Printer, Search, ShoppingCart, Trash2, User, Wrench, X } from 'lucide-react';
+import { BadgeDollarSign, BarChart3, Check, ClipboardList, FileText, History, Mail, Package, Percent, Plus, Printer, Search, ShoppingCart, Trash2, User, UserPlus, Wrench, X } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 import { API_BASE_URL } from '../services/apiBase';
 
@@ -14,24 +14,6 @@ const getTechnicianCostError = value => {
     return 'Enter a valid amount with no more than 2 decimal places.';
   }
   return '';
-};
-const getPartsCustomerErrors = customer => {
-  const errors = {};
-  const name = String(customer.name || '').trim();
-  const phone = String(customer.phone || '').trim();
-  const email = String(customer.email || '').trim();
-
-  if (!name) errors.name = 'Customer name is required.';
-  else if (name.length < 2 || name.length > 80) errors.name = 'Customer name must be between 2 and 80 characters.';
-  if (!phone) errors.phone = 'Phone number is required.';
-  else if (!/^(?:0|94|\+94)\d{9}$/.test(phone.replace(/[\s()-]/g, ''))) {
-    errors.phone = 'Enter a valid Sri Lankan phone number.';
-  }
-  if (!email) errors.email = 'Email address is required.';
-  else if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = 'Enter a valid email address.';
-  }
-  return errors;
 };
 const compactMoney = value => {
   const amount = Number(value || 0);
@@ -150,9 +132,11 @@ const Sales = () => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [billingType, setBillingType] = useState('repair');
-  const [partsCustomer, setPartsCustomer] = useState({ name: '', phone: '', email: '' });
-  const [partsCustomerTouched, setPartsCustomerTouched] = useState({});
-  const [partsCustomerSubmitAttempted, setPartsCustomerSubmitAttempted] = useState(false);
+  const [partsCustomerSearch, setPartsCustomerSearch] = useState('');
+  const [selectedPartsCustomerId, setSelectedPartsCustomerId] = useState('');
+  const [showPartsCustomerForm, setShowPartsCustomerForm] = useState(false);
+  const [newPartsCustomer, setNewPartsCustomer] = useState({ name: '', phone: '', email: '' });
+  const [registeringPartsCustomer, setRegisteringPartsCustomer] = useState(false);
   const [selectedPartId, setSelectedPartId] = useState('');
   const [partsProductSearch, setPartsProductSearch] = useState('');
   const [selectedPartQuantity, setSelectedPartQuantity] = useState(1);
@@ -178,6 +162,7 @@ const Sales = () => {
   const [resendingHistoryEmailId, setResendingHistoryEmailId] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState('');
+  const [customerMessage, setCustomerMessage] = useState('');
 
   const load = async () => {
     try {
@@ -206,8 +191,15 @@ const Sales = () => {
 
   const selectedJob = jobs.find(job => job._id === selectedJobId);
   const selectedCustomer = customers.find(customer => customer._id === selectedCustomerId);
+  const selectedPartsCustomer = customers.find(customer => customer._id === selectedPartsCustomerId);
   const selectedPart = products.find(product => product._id === selectedPartId);
-  const partsCustomerErrors = getPartsCustomerErrors(partsCustomer);
+  const matchingPartsCustomers = useMemo(() => {
+    const query = partsCustomerSearch.trim().toLowerCase();
+    if (!query) return [];
+    return customers
+      .filter(customer => `${customer.name} ${customer.phone} ${customer.email || ''}`.toLowerCase().includes(query))
+      .slice(0, 8);
+  }, [customers, partsCustomerSearch]);
   const matchingParts = useMemo(() => {
     const query = partsProductSearch.trim().toLowerCase();
     if (!query) return [];
@@ -295,11 +287,37 @@ const Sales = () => {
     if (!item || !Number.isInteger(quantity) || quantity < 1 || quantity > Number(item.product.quantity)) return;
     setPartsCart(current => current.map(entry => entry.product._id === productId ? { ...entry, quantity } : entry));
   };
+  const registerPartsCustomer = async () => {
+    setCustomerMessage('');
+    setError('');
+    setRegisteringPartsCustomer(true);
+    try {
+      const response = await fetch(`${API}/customers`, {
+        method: 'POST',
+        headers: headers(),
+        body: JSON.stringify(newPartsCustomer)
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.error || 'Could not register the customer.');
+      setCustomers(current => [...current, data]);
+      setSelectedPartsCustomerId(data._id);
+      setPartsCustomerSearch('');
+      setNewPartsCustomer({ name: '', phone: '', email: '' });
+      setShowPartsCustomerForm(false);
+      setCustomerMessage(`${data.name} is registered and selected for billing.`);
+    } catch (err) {
+      setError(err.message || 'Could not register the customer.');
+    } finally {
+      setRegisteringPartsCustomer(false);
+    }
+  };
   const createPartsBill = async event => {
     event.preventDefault();
     setError('');
-    setPartsCustomerSubmitAttempted(true);
-    if (Object.keys(partsCustomerErrors).length) return;
+    if (!selectedPartsCustomer) {
+      setError('Search for and select a registered customer before creating the bill.');
+      return;
+    }
     if (!partsCart.length) {
       setError('Add at least one part to the bill.');
       return;
@@ -310,9 +328,7 @@ const Sales = () => {
         method: 'POST',
         headers: headers(),
         body: JSON.stringify({
-          customerName: partsCustomer.name,
-          customerPhone: partsCustomer.phone,
-          customerEmail: partsCustomer.email,
+          customerId: selectedPartsCustomer._id,
           items: partsCart.map(item => ({ product: item.product._id, quantity: item.quantity })),
           discount: appliedPartsDiscount,
           paymentStatus: partsPaymentStatus
@@ -325,9 +341,7 @@ const Sales = () => {
       setSalesHistory(current => [data, ...current.filter(sale => sale._id !== data._id)]);
       setPartsCart([]);
       setPartsDiscount('');
-      setPartsCustomer({ name: '', phone: '', email: '' });
-      setPartsCustomerTouched({});
-      setPartsCustomerSubmitAttempted(false);
+      setCustomerMessage(`Bill created for ${selectedPartsCustomer.name}.`);
       setProducts(current => current.map(product => {
         const soldQuantity = partsCart.find(item => item.product._id === product._id)?.quantity || 0;
         return soldQuantity ? { ...product, quantity: Number(product.quantity) - soldQuantity } : product;
@@ -421,12 +435,31 @@ const Sales = () => {
     {billingType === 'parts' && <div className="parts-only-workspace">
       <form onSubmit={createPartsBill} className="parts-only-form" noValidate>
         <section className="card billing-card">
-          <div className="billing-section-heading"><div><span className="section-icon"><User size={18} /></span><div><h4>Customer details</h4><p>Enter the details to include on and email with this parts invoice.</p></div></div></div>
-          <div className="parts-contact-fields">
-            <label>Customer name<input required maxLength="80" className={`input${(partsCustomerTouched.name || partsCustomerSubmitAttempted) && partsCustomerErrors.name ? ' input-validation-error' : ''}`} aria-invalid={Boolean((partsCustomerTouched.name || partsCustomerSubmitAttempted) && partsCustomerErrors.name)} aria-describedby={(partsCustomerTouched.name || partsCustomerSubmitAttempted) && partsCustomerErrors.name ? 'parts-customer-name-error' : undefined} autoComplete="name" value={partsCustomer.name} onChange={event => { setPartsCustomer(current => ({ ...current, name: event.target.value })); setPartsCustomerTouched(current => ({ ...current, name: true })); }} placeholder="Customer name" />{(partsCustomerTouched.name || partsCustomerSubmitAttempted) && partsCustomerErrors.name && <small id="parts-customer-name-error" className="field-validation-error">{partsCustomerErrors.name}</small>}</label>
-            <label>Phone number<input required maxLength="20" className={`input${(partsCustomerTouched.phone || partsCustomerSubmitAttempted) && partsCustomerErrors.phone ? ' input-validation-error' : ''}`} aria-invalid={Boolean((partsCustomerTouched.phone || partsCustomerSubmitAttempted) && partsCustomerErrors.phone)} aria-describedby={(partsCustomerTouched.phone || partsCustomerSubmitAttempted) && partsCustomerErrors.phone ? 'parts-customer-phone-error' : undefined} type="tel" autoComplete="tel" value={partsCustomer.phone} onChange={event => { setPartsCustomer(current => ({ ...current, phone: event.target.value })); setPartsCustomerTouched(current => ({ ...current, phone: true })); }} placeholder="Phone number" />{(partsCustomerTouched.phone || partsCustomerSubmitAttempted) && partsCustomerErrors.phone && <small id="parts-customer-phone-error" className="field-validation-error">{partsCustomerErrors.phone}</small>}</label>
-            <label>Email address<input required maxLength="254" className={`input${(partsCustomerTouched.email || partsCustomerSubmitAttempted) && partsCustomerErrors.email ? ' input-validation-error' : ''}`} aria-invalid={Boolean((partsCustomerTouched.email || partsCustomerSubmitAttempted) && partsCustomerErrors.email)} aria-describedby={(partsCustomerTouched.email || partsCustomerSubmitAttempted) && partsCustomerErrors.email ? 'parts-customer-email-error' : undefined} type="email" autoComplete="email" value={partsCustomer.email} onChange={event => { setPartsCustomer(current => ({ ...current, email: event.target.value })); setPartsCustomerTouched(current => ({ ...current, email: true })); }} placeholder="customer@example.com" />{(partsCustomerTouched.email || partsCustomerSubmitAttempted) && partsCustomerErrors.email && <small id="parts-customer-email-error" className="field-validation-error">{partsCustomerErrors.email}</small>}</label>
-          </div>
+          <div className="billing-section-heading"><div><span className="section-icon"><User size={18} /></span><div><h4>Customer</h4><p>Search existing customers or register a new customer before billing.</p></div></div></div>
+          {!selectedPartsCustomer ? <>
+            <div className="parts-product-picker">
+              <label htmlFor="parts-customer-search">Search registered customers</label>
+              <div className="supplier-search"><Search size={16} aria-hidden="true" /><input id="parts-customer-search" type="search" autoComplete="off" aria-label="Search customers by name, phone, or email" value={partsCustomerSearch} onChange={event => { setPartsCustomerSearch(event.target.value); setCustomerMessage(''); }} placeholder="Enter customer name, phone, or email" /></div>
+              {partsCustomerSearch.trim() && <div className="parts-product-results" role="listbox" aria-label="Matching customers">
+                {matchingPartsCustomers.length ? matchingPartsCustomers.map(customer => <button type="button" role="option" aria-selected={false} key={customer._id} onClick={() => { setSelectedPartsCustomerId(customer._id); setPartsCustomerSearch(''); setCustomerMessage(''); setError(''); setPartsBill(null); }}>
+                  <span><strong>{customer.name} · {customer.customerType || 'Existing'}</strong><small>{customer.phone}{customer.email ? ` · ${customer.email}` : ''}</small></span><Check size={16} />
+                </button>) : <p>No registered customer matches that search.</p>}
+              </div>}
+            </div>
+            <div className="billing-actions">
+              <button type="button" className="btn btn-outline" onClick={() => { setShowPartsCustomerForm(current => !current); setCustomerMessage(''); }}>{showPartsCustomerForm ? <X size={16} /> : <UserPlus size={16} />}{showPartsCustomerForm ? 'Cancel registration' : 'Register new customer'}</button>
+            </div>
+            {showPartsCustomerForm && <div className="parts-contact-fields">
+              <label>Customer name<input className="input" name="name" required minLength="2" maxLength="80" autoComplete="name" value={newPartsCustomer.name} onChange={event => setNewPartsCustomer(current => ({ ...current, name: event.target.value }))} placeholder="Customer name" /></label>
+              <label>Phone number<input className="input" name="phone" required maxLength="20" type="tel" autoComplete="tel" value={newPartsCustomer.phone} onChange={event => setNewPartsCustomer(current => ({ ...current, phone: event.target.value }))} placeholder="Phone number" /></label>
+              <label>Email address (optional)<input className="input" name="email" maxLength="254" type="email" autoComplete="email" value={newPartsCustomer.email} onChange={event => setNewPartsCustomer(current => ({ ...current, email: event.target.value }))} placeholder="customer@example.com" /></label>
+              <button className="btn btn-primary" type="button" onClick={registerPartsCustomer} disabled={registeringPartsCustomer}><UserPlus size={16} />{registeringPartsCustomer ? 'Registering...' : 'Register and select customer'}</button>
+            </div>}
+          </> : <div className="selected-parts-product">
+            <span><Check size={15} /> Selected customer: <strong>{selectedPartsCustomer.name}</strong> · {selectedPartsCustomer.phone}{selectedPartsCustomer.email ? ` · ${selectedPartsCustomer.email}` : ' · No email on file'}</span>
+            <button type="button" className="btn btn-outline" onClick={() => { setSelectedPartsCustomerId(''); setError(''); setPartsBill(null); }}>Change customer</button>
+          </div>}
+          {customerMessage && <p className="booking-hint" role="status">{customerMessage}</p>}
         </section>
         <section className="card billing-card">
           <div className="billing-section-heading"><div><span className="section-icon"><ShoppingCart size={18} /></span><div><h4>Parts to bill</h4><p>Select in-stock items. The current inventory selling price is used on the invoice.</p></div></div></div>
@@ -450,7 +483,7 @@ const Sales = () => {
             <label>Payment status<select className="input" value={partsPaymentStatus} onChange={event => setPartsPaymentStatus(event.target.value)}><option>Paid</option><option>Pending</option></select></label>
           </div>
           <div className="summary-lines parts-sale-summary"><div><span>Subtotal</span><strong>{money(partsSubtotal)}</strong></div><div><span>Discount</span><strong>-{money(appliedPartsDiscount)}</strong></div><div className="summary-total"><span>Total</span><strong>{money(partsTotal)}</strong></div></div>
-          <div className="billing-actions"><button className="btn btn-primary" type="submit" disabled={creatingPartsBill || !partsCart.length}><Mail size={16} />{creatingPartsBill ? 'Creating and emailing...' : 'Create bill and email invoice'}</button></div>
+          <div className="billing-actions"><button className="btn btn-primary" type="submit" disabled={creatingPartsBill || !partsCart.length || !selectedPartsCustomer}><Mail size={16} />{creatingPartsBill ? 'Creating bill...' : selectedPartsCustomer?.email ? 'Create bill and email invoice' : 'Create bill'}</button></div>
         </section>
       </form>
       {partsBill && <div className="invoice-result parts-only-invoice">

@@ -68,7 +68,8 @@ const validateJobCardInput = (job, now = new Date()) => {
 
   if (job.estimatedCost !== undefined && job.estimatedCost !== '') {
     const estimatedCost = Number(job.estimatedCost);
-    if (!Number.isFinite(estimatedCost) || estimatedCost < 0) return 'Estimated cost must be zero or greater.';
+    if (!Number.isFinite(estimatedCost)) return 'Enter a valid estimated cost.';
+    if (estimatedCost < 0) return 'Estimated cost must be zero or greater.';
   }
 
   return null;

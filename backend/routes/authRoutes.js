@@ -12,8 +12,8 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role, phone } = req.body;
-    if (role === 'Supplier') {
-      return res.status(403).json({ message: 'Supplier accounts are created by the owner. Use the email and password provided by your supplier.' });
+    if (role !== 'Customer') {
+      return res.status(403).json({ message: 'Only customer accounts can be registered here.' });
     }
 
     // Check if user already exists
@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
 
     // If customer role, create customer profile
     if (role === 'Customer') {
-      const customer = new Customer({ name, phone, email });
+      const customer = new Customer({ name, phone, email, customerType: 'Portal' });
       await customer.save();
       user.customerProfile = customer._id;
     }
