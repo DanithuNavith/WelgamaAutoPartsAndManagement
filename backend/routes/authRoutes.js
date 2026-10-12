@@ -7,6 +7,7 @@ const Supplier = require('../models/Supplier');
 const { JWT_SECRET, authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
+const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -15,19 +16,23 @@ router.post('/register', async (req, res) => {
     if (role !== 'Customer') {
       return res.status(403).json({ message: 'Only customer accounts can be registered here.' });
     }
+    const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!validEmail(normalizedEmail)) {
+      return res.status(400).json({ message: 'Enter a valid email address.' });
+    }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(400).json({ message: 'An account with this email already exists.' });
     }
 
     // Create user
-    const user = new User({ name, email, password, role, phone });
+    const user = new User({ name, email: normalizedEmail, password, role, phone });
 
     // If customer role, create customer profile
     if (role === 'Customer') {
-      const customer = new Customer({ name, phone, email, customerType: 'Portal' });
+      const customer = new Customer({ name, phone, email: normalizedEmail, customerType: 'Portal' });
       await customer.save();
       user.customerProfile = customer._id;
     }
@@ -62,11 +67,14 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password, role } = req.body;
-    const identifier = (email || '').trim();
+    const identifier = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!validEmail(identifier)) {
+      return res.status(400).json({ message: 'Enter a valid email address.' });
+    }
 
     let user;
     if (role === 'Supplier') {
-      const normalizedEmail = identifier.toLowerCase();
+      const normalizedEmail = identifier;
       user = await User.findOne({ email: normalizedEmail, role: 'Supplier' });
       let supplier = await Supplier.findOne({ email: normalizedEmail }).select('+password');
 
@@ -109,7 +117,7 @@ router.post('/login', async (req, res) => {
     } else {
       user = await User.findOne({
         role,
-        $or: [{ email: identifier.toLowerCase() }, { name: identifier }]
+        email: identifier
       });
     }
 

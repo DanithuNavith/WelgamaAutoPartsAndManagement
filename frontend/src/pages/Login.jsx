@@ -12,6 +12,8 @@ const roles = [
   { key: 'Supplier', label: 'Supplier', icon: Building2, color: '#f59e0b', desc: 'View your orders & deliveries' }
 ];
 
+const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,6 +63,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidEmail(form.email)) {
+      setError('Enter a valid email address.');
+      setSuccess('');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
@@ -237,8 +245,9 @@ const Login = () => {
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.35rem', display: 'block' }}>Email</label>
               <input
-                type={isRegister || selectedRole === 'Supplier' ? 'email' : 'text'} name="email" value={form.email} onChange={handleChange}
-                placeholder={selectedRole === 'Supplier' && !isRegister ? 'Enter your registered supplier email' : 'Enter your email'} required
+                type="email" name="email" value={form.email} onChange={handleChange}
+                placeholder={selectedRole === 'Supplier' && !isRegister ? 'Enter your registered supplier email' : 'Enter your email'}
+                required autoComplete="email" aria-invalid={Boolean(error && !isValidEmail(form.email))}
                 style={{
                   width: '100%', padding: '0.75rem 1rem', borderRadius: '10px',
                   background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)',

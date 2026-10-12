@@ -32,3 +32,32 @@ test('blocks self-registration for every non-customer role', async () => {
     assert.deepEqual(await response.json(), { message: 'Only customer accounts can be registered here.' });
   }
 });
+
+test('rejects malformed email addresses during customer registration', async () => {
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: 'Test Customer',
+      email: 'not-an-email',
+      password: 'password123',
+      role: 'Customer'
+    })
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { message: 'Enter a valid email address.' });
+});
+
+test('rejects malformed email addresses for every login role', async () => {
+  for (const role of ['Owner', 'Customer', 'Technician', 'Supplier']) {
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'invalid-email', password: 'password123', role })
+    });
+
+    assert.equal(response.status, 400, `${role} login should reject malformed email`);
+    assert.deepEqual(await response.json(), { message: 'Enter a valid email address.' });
+  }
+});
