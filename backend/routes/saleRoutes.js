@@ -257,9 +257,6 @@ router.post('/repair/:jobId', async (req, res) => {
       jobCard: job._id, billType: 'REPAIR', customer: job.customer?._id || job.customer,
       vehicle: { make: job.vehicleMake, model: job.vehicleModel, year: job.vehicleYear, licensePlate: job.registrationNumber || job.licensePlate },
       technician: job.technician?._id || job.technician,
-      technicianHours: Number(job.technicianHours || 0),
-      technicianRate: Number(job.technicianRate || 0),
-      estimatedCost: Number(job.estimatedCost || 0),
       technicianCost,
       partsCost, items: invoiceItems, subtotal, discount, tax: 0, total: repairCost,
       netProfit: calculatePartsNetProfit(invoiceItems, discount, subtotal),
@@ -272,9 +269,6 @@ router.post('/repair/:jobId', async (req, res) => {
       || existingInvoice.paymentStatus !== invoiceData.paymentStatus
       || existingInvoice.technicianCost !== invoiceData.technicianCost
       || existingInvoice.partsCost !== invoiceData.partsCost
-      || existingInvoice.technicianHours !== invoiceData.technicianHours
-      || existingInvoice.technicianRate !== invoiceData.technicianRate
-      || existingInvoice.estimatedCost !== invoiceData.estimatedCost
       || JSON.stringify(existingInvoice.items.map(item => ({
         product: String(item.product || ''),
         productName: item.productName,

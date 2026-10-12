@@ -11,7 +11,7 @@ const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 router.get('/', async (req, res) => {
   try {
-    const techs = await Technician.find().select('name status').sort({ name: 1 });
+    const techs = await Technician.find().select('name specialty status').sort({ name: 1 });
     res.json(techs);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -50,7 +50,6 @@ router.post('/', async (req, res) => {
     const password = req.body.password;
     const specialty = typeof req.body.specialty === 'string' ? req.body.specialty.trim() : '';
     const phone = typeof req.body.phone === 'string' ? req.body.phone.trim() : '';
-    const hourlyRate = Number(req.body.hourlyRate);
     const status = req.body.status || 'Available';
 
     if (!name || !email || !password) {
@@ -60,9 +59,6 @@ router.post('/', async (req, res) => {
     if (typeof password !== 'string' || password.length < 8) {
       return res.status(400).json({ error: 'Technician password must be at least 8 characters.' });
     }
-    if (!Number.isFinite(hourlyRate) || hourlyRate < 0) {
-      return res.status(400).json({ error: 'Enter a valid non-negative hourly rate.' });
-    }
     if (!technicianStatuses.includes(status)) {
       return res.status(400).json({ error: 'Choose a valid technician status.' });
     }
@@ -71,7 +67,7 @@ router.post('/', async (req, res) => {
       return res.status(409).json({ error: 'An account with this email already exists.' });
     }
 
-    technician = await Technician.create({ name, specialty, hourlyRate, status });
+    technician = await Technician.create({ name, specialty, status });
     const user = await User.create({
       name,
       email,
@@ -106,7 +102,7 @@ router.put('/:id', async (req, res) => {
     const user = await User.findOne({ role: 'Technician', technicianProfile: technician._id });
     if (!user) return res.status(409).json({ error: 'This technician profile has no linked login account.' });
 
-    const allowedFields = ['name', 'email', 'phone', 'specialty', 'hourlyRate', 'status', 'password'];
+    const allowedFields = ['name', 'email', 'phone', 'specialty', 'status', 'password'];
     if (!allowedFields.some(field => req.body[field] !== undefined)) {
       return res.status(400).json({ error: 'Provide at least one technician field to update.' });
     }
@@ -133,13 +129,6 @@ router.put('/:id', async (req, res) => {
     if (req.body.specialty !== undefined) {
       if (typeof req.body.specialty !== 'string') return res.status(400).json({ error: 'Technician specialty must be text.' });
       technician.specialty = req.body.specialty.trim();
-    }
-    if (req.body.hourlyRate !== undefined) {
-      const hourlyRate = Number(req.body.hourlyRate);
-      if (!Number.isFinite(hourlyRate) || hourlyRate < 0) {
-        return res.status(400).json({ error: 'Enter a valid non-negative hourly rate.' });
-      }
-      technician.hourlyRate = hourlyRate;
     }
     if (req.body.status !== undefined) {
       if (!technicianStatuses.includes(req.body.status)) {

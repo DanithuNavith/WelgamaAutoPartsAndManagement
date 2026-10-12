@@ -8,7 +8,6 @@ const emptyForm = {
   phone: '',
   password: '',
   specialty: '',
-  hourlyRate: '1000',
   status: 'Available'
 };
 
@@ -64,7 +63,6 @@ const TechnicianProfiles = () => {
       phone: technician.phone || '',
       password: '',
       specialty: technician.specialty || '',
-      hourlyRate: String(technician.hourlyRate ?? 0),
       status: technician.status || 'Available'
     });
     setShowForm(true);
@@ -83,7 +81,7 @@ const TechnicianProfiles = () => {
     setError('');
     setNotice('');
     try {
-      const payload = { ...form, hourlyRate: Number(form.hourlyRate) };
+      const payload = { ...form };
       if (editingTechnician && !payload.password) delete payload.password;
       const response = await fetch(
         `${API_BASE_URL}/technicians${editingTechnician ? `/${editingTechnician._id}` : ''}`,
@@ -131,7 +129,7 @@ const TechnicianProfiles = () => {
       <div className="flex justify-between align-center mb-6">
         <div>
           <h3>Technician Profiles</h3>
-          <p className="text-muted">Create staff profiles and manage their login accounts, specialties, rates, and availability.</p>
+          <p className="text-muted">Create staff profiles and manage their login accounts, specialties, and availability.</p>
         </div>
         <button className="btn btn-primary" type="button" onClick={openCreate}><Plus size={18} /> Add Technician</button>
       </div>
@@ -143,16 +141,15 @@ const TechnicianProfiles = () => {
         <div className="table-container">
           <table>
             <thead>
-              <tr><th>Name</th><th>Login email</th><th>Phone</th><th>Specialty</th><th>Hourly rate</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Name</th><th>Login email</th><th>Phone</th><th>Specialty</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              {loading ? <tr><td colSpan="7">Loading technician profiles…</td></tr> : technicians.length === 0 ? <tr><td colSpan="7">No technician profiles found.</td></tr> : technicians.map(technician => (
+              {loading ? <tr><td colSpan="6">Loading technician profiles…</td></tr> : technicians.length === 0 ? <tr><td colSpan="6">No technician profiles found.</td></tr> : technicians.map(technician => (
                 <tr key={technician._id}>
                   <td>{technician.name}</td>
                   <td>{technician.email || 'No linked login'}</td>
                   <td>{technician.phone || '—'}</td>
                   <td>{technician.specialty || 'General'}</td>
-                  <td>Rs. {Number(technician.hourlyRate || 0).toLocaleString()}</td>
                   <td>{technician.status}</td>
                   <td>
                     <div className="flex gap-2">
@@ -180,7 +177,6 @@ const TechnicianProfiles = () => {
               <label>Phone<input className="input" type="tel" name="phone" value={form.phone} onChange={updateField} /></label>
               <label>Password{editingTechnician && <small> Leave blank to keep the current password.</small>}<input className="input" type="password" name="password" value={form.password} onChange={updateField} required={!editingTechnician} minLength="8" autoComplete="new-password" /></label>
               <label>Specialty<input className="input" name="specialty" value={form.specialty} onChange={updateField} placeholder="General" /></label>
-              <label>Hourly rate (Rs.)<input className="input" type="number" name="hourlyRate" value={form.hourlyRate} onChange={updateField} min="0" step="0.01" required /></label>
               <label>Status<select className="input" name="status" value={form.status} onChange={updateField}><option>Available</option><option>Busy</option><option>Offline</option></select></label>
               {error && <div className="form-error" role="alert">{error}</div>}
               <div className="flex justify-between mt-4">

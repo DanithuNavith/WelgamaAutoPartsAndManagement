@@ -255,7 +255,7 @@ const Sales = () => {
 
   const chooseJob = event => {
     const job = jobs.find(item => item._id === event.target.value);
-    setSelectedJobId(event.target.value); setSelectedCustomerId(job?.customer?._id || job?.customer || ''); setVehicleIndex('job'); setManualTechnicianCost(job?.laborCost || job?.estimatedCost || ''); setRepairDiscount(''); setCreatedBill(null); setInvoiceEmailStatus(null);
+    setSelectedJobId(event.target.value); setSelectedCustomerId(job?.customer?._id || job?.customer || ''); setVehicleIndex('job'); setManualTechnicianCost(job?.laborCost || ''); setRepairDiscount(''); setCreatedBill(null); setInvoiceEmailStatus(null);
   };
   const addPartToBill = () => {
     if (!selectedPart) return;

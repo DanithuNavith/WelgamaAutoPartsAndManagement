@@ -66,12 +66,6 @@ const validateJobCardInput = (job, now = new Date()) => {
   const appointmentDate = new Date(dayStartUtc + hour * 60 * 60_000 + minute * 60_000 - 330 * 60_000);
   if (appointmentDate <= now) return 'Appointment must be in the future.';
 
-  if (job.estimatedCost !== undefined && job.estimatedCost !== '') {
-    const estimatedCost = Number(job.estimatedCost);
-    if (!Number.isFinite(estimatedCost)) return 'Enter a valid estimated cost.';
-    if (estimatedCost < 0) return 'Estimated cost must be zero or greater.';
-  }
-
   return null;
 };
 

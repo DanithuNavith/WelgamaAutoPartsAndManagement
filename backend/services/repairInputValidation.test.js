@@ -41,9 +41,6 @@ test('validates job card description length and future appointment date', () => 
   };
 
   assert.equal(validateJobCardInput(validJob, now), null);
-  assert.equal(validateJobCardInput({ ...validJob, estimatedCost: '2500.50' }, now), null);
-  assert.match(validateJobCardInput({ ...validJob, estimatedCost: '-1' }, now), /zero or greater/);
-  assert.match(validateJobCardInput({ ...validJob, estimatedCost: 'invalid' }, now), /valid estimated cost/);
   assert.match(validateJobCardInput({ ...validJob, issueDescription: 'Noise' }, now), /10 and 500/);
   assert.match(validateJobCardInput({ ...validJob, appointmentDate: '2025-12-31T09:00' }, now), /future/);
   assert.match(validateJobCardInput({ ...validJob, appointmentDate: '2026-02-30T09:00' }, now), /valid appointment/);

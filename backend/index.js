@@ -20,6 +20,9 @@ const stockFlagRoutes = require('./routes/stockFlagRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const User = require('./models/User');
 const Technician = require('./models/Technician');
+const JobCard = require('./models/JobCard');
+const Sale = require('./models/Sale');
+const { removeLegacyTechnicianMetrics } = require('./services/removeLegacyTechnicianMetrics');
 
 const app = express();
 app.use(cors());
@@ -108,6 +111,7 @@ app.listen(PORT, () => {
 });
 
 let loginAccountsInitialized = false;
+let legacyTechnicianMetricsRemoved = false;
 let mongoRetryTimer;
 
 const connectToMongo = async () => {
@@ -120,6 +124,13 @@ const connectToMongo = async () => {
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 10000 });
       console.log('Connected to MongoDB');
+    }
+    if (!legacyTechnicianMetricsRemoved) {
+      const removedDocuments = await removeLegacyTechnicianMetrics({ JobCard, Sale, Technician });
+      if (removedDocuments > 0) {
+        console.log(`Removed legacy technician metrics from ${removedDocuments} database records`);
+      }
+      legacyTechnicianMetricsRemoved = true;
     }
     if (!loginAccountsInitialized) {
       await ensureLoginAccounts();
