@@ -18,8 +18,11 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const requestedRole = searchParams.get('role');
 
+  const [isRegister, setIsRegister] = useState(searchParams.get('tab') === 'register' && location.pathname !== '/supplier/login');
   const [selectedRole, setSelectedRole] = useState(
-    roles.some(role => role.key === requestedRole)
+    searchParams.get('tab') === 'register'
+      ? 'Customer'
+      : roles.some(role => role.key === requestedRole)
       ? requestedRole
       : location.pathname === '/supplier/login' ? 'Supplier' : 'Customer'
   );
@@ -29,7 +32,7 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
 
   const redirectByRole = useCallback((role) => {
     switch (role) {
@@ -63,10 +66,14 @@ const Login = () => {
     setSuccess('');
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      const endpoint = isRegister ? '/auth/register' : '/auth/login';
+      const body = isRegister
+        ? { ...form, role: 'Customer' }
+        : { email: form.email, password: form.password, role: selectedRole };
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password, role: selectedRole })
+        body: JSON.stringify(body)
       });
 
       const data = await res.json();
@@ -156,20 +163,20 @@ const Login = () => {
           padding: '2rem', boxShadow: '0 25px 50px rgba(0,0,0,0.4)'
         }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.25rem' }}>
-            Welcome Back
+            {isRegister ? 'Create Customer Account' : 'Welcome Back'}
           </h2>
           <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Sign in to your account
+            {isRegister ? 'Register to access your customer portal' : 'Sign in to your account'}
           </p>
 
           {/* Role Selector */}
-          <div style={{ marginBottom: '1.5rem' }}>
+          {!isRegister && <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>
               Login as
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
               {roles.map(role => (
-                <button key={role.key} onClick={() => setSelectedRole(role.key)} style={{
+                <button key={role.key} onClick={() => { setSelectedRole(role.key); setIsRegister(false); }} style={{
                   padding: '0.75rem 0.5rem', borderRadius: '12px', cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem',
                   background: selectedRole === role.key ? `${role.color}15` : 'rgba(255,255,255,0.02)',
@@ -185,7 +192,10 @@ const Login = () => {
             <p style={{ fontSize: '0.75rem', color: '#475569', marginTop: '0.5rem', textAlign: 'center' }}>
               {activeRoleData.desc}
             </p>
-          </div>
+          </div>}
+          {isRegister && <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0 0 1.5rem' }}>
+            Customer accounts can register here. Technician, owner, and supplier accounts are managed by the owner.
+          </p>}
 
           {/* Error / Success messages */}
           {error && (
@@ -209,11 +219,26 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {isRegister && <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.35rem', display: 'block' }}>Full Name</label>
+              <input
+                type="text" name="name" value={form.name} onChange={handleChange}
+                placeholder="Enter your full name" required
+                style={{
+                  width: '100%', padding: '0.75rem 1rem', borderRadius: '10px',
+                  background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#f8fafc', fontSize: '0.9rem', outline: 'none',
+                  transition: 'border-color 0.3s, box-shadow 0.3s', boxSizing: 'border-box'
+                }}
+                onFocus={e => { e.target.style.borderColor = `${activeRoleData.color}50`; e.target.style.boxShadow = `0 0 0 3px ${activeRoleData.color}10`; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }}
+              />
+            </div>}
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.35rem', display: 'block' }}>Email</label>
               <input
-                type={selectedRole === 'Supplier' ? 'email' : 'text'} name="email" value={form.email} onChange={handleChange}
-                placeholder={selectedRole === 'Supplier' ? 'Enter your registered supplier email' : 'Enter your email'} required
+                type={isRegister || selectedRole === 'Supplier' ? 'email' : 'text'} name="email" value={form.email} onChange={handleChange}
+                placeholder={selectedRole === 'Supplier' && !isRegister ? 'Enter your registered supplier email' : 'Enter your email'} required
                 style={{
                   width: '100%', padding: '0.75rem 1rem', borderRadius: '10px',
                   background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)',
@@ -224,6 +249,22 @@ const Login = () => {
                 onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
+
+            {isRegister && <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.35rem', display: 'block' }}>Phone (Required)</label>
+              <input
+                type="tel" name="phone" value={form.phone} onChange={handleChange}
+                placeholder="Enter your phone number" required
+                style={{
+                  width: '100%', padding: '0.75rem 1rem', borderRadius: '10px',
+                  background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#f8fafc', fontSize: '0.9rem', outline: 'none',
+                  transition: 'border-color 0.3s, box-shadow 0.3s', boxSizing: 'border-box'
+                }}
+                onFocus={e => { e.target.style.borderColor = `${activeRoleData.color}50`; e.target.style.boxShadow = `0 0 0 3px ${activeRoleData.color}10`; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }}
+              />
+            </div>}
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', marginBottom: '0.35rem', display: 'block' }}>Password</label>
@@ -263,13 +304,27 @@ const Login = () => {
             onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 8px 25px ${activeRoleData.color}30`; }}
             >
               {loading && <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />}
-              Sign In
+              {isRegister ? 'Create Account' : 'Sign In'}
             </button>
           </form>
 
-          <div className="login-options"><label><input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} /> Remember me</label><button type="button" onClick={() => setSuccess('If an account exists for this email, password reset instructions will be sent.')}>Forgot password?</button></div>
+          {!isRegister && <div className="login-options"><label><input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} /> Remember me</label><button type="button" onClick={() => setSuccess('If an account exists for this email, password reset instructions will be sent.')}>Forgot password?</button></div>}
 
-          {selectedRole === 'Supplier' && <p className="supplier-login-help">Supplier accounts are created by the owner. Sign in with the registered email address and password the owner provided.</p>}
+          {selectedRole === 'Customer' ? <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+            {isRegister ? 'Already have a customer account?' : "Don't have a customer account?"}{' '}
+            <button type="button" onClick={() => {
+              setIsRegister(register => !register);
+              setSelectedRole('Customer');
+              setError('');
+              setSuccess('');
+            }} style={{
+              background: 'none', border: 'none', color: roles.find(role => role.key === 'Customer').color,
+              cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
+              transition: 'opacity 0.2s'
+            }}>
+              {isRegister ? 'Sign In' : 'Register'}
+            </button>
+          </p> : selectedRole === 'Supplier' && <p className="supplier-login-help">Supplier accounts are created by the owner. Sign in with the registered email address and password the owner provided.</p>}
         </div>
       </div>
 

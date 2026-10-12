@@ -6,14 +6,14 @@ import BrandLogo from './BrandLogo';
 const Sidebar = () => {
 
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Inventory', path: '/inventory', icon: Package },
-    { name: 'Sales & Billing', path: '/sales', icon: ShoppingCart },
-    { name: 'Repairs', path: '/repairs', icon: Wrench },
-    { name: 'Customers', path: '/customers', icon: Users },
-    { name: 'Technician Profiles', path: '/technician-profiles', icon: UserRoundCog },
-    { name: 'Suppliers', path: '/suppliers', icon: Building2 },
-    { name: 'Purchase Orders', path: '/purchase-orders', icon: ClipboardList },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Inventory', path: '/admin/inventory', icon: Package },
+    { name: 'Sales & Billing', path: '/admin/sales', icon: ShoppingCart },
+    { name: 'Repairs', path: '/admin/repairs', icon: Wrench },
+    { name: 'Customers', path: '/admin/customers', icon: Users },
+    { name: 'Technician Profiles', path: '/admin/technician-profiles', icon: UserRoundCog },
+    { name: 'Suppliers', path: '/admin/suppliers', icon: Building2 },
+    { name: 'Purchase Orders', path: '/admin/purchase-orders', icon: ClipboardList },
   ];
 
   return (
